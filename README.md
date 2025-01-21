@@ -1,66 +1,38 @@
-## Foundry
+# About Q-Dex
 
-**Foundry is a blazing fast, portable and modular toolkit for Ethereum application development written in Rust.**
+# CONTRIBUTING
 
-Foundry consists of:
+We welcome all contributions and look forward to collaborating with you. Please follow the guidelines below to ensure a smooth contribution process.
 
--   **Forge**: Ethereum testing framework (like Truffle, Hardhat and DappTools).
--   **Cast**: Swiss army knife for interacting with EVM smart contracts, sending transactions and getting chain data.
--   **Anvil**: Local Ethereum node, akin to Ganache, Hardhat Network.
--   **Chisel**: Fast, utilitarian, and verbose solidity REPL.
+## How to Contribute
 
-## Documentation
+1. **Report Issues**: If you encounter bugs or have suggestions, create an issue in the repository. Be as detailed as possible and include steps to reproduce the issue if applicable.
+2. **Suggest Enhancements**: Open an issue to propose new features or improvements. Clearly describe the current behavior, your expected behavior, and why the enhancement would be beneficial.
+3. **Submit Pull Requests**:
+   - Fork the repository and clone it locally.
+   - Create a new branch for your changes (`git checkout -b feature-name`).
+   - Make your changes, ensuring they align with the coding standards outlined below.
+   - Test your changes thoroughly.
+   - Commit your work with clear and descriptive messages.
+   - Push your branch and create a pull request.
 
-https://book.getfoundry.sh/
+## Coding Standards
 
-## Usage
+- Follow the project's code style and conventions.
+- Write clear, concise, and well-documented code.
+- Include tests for any new functionality or bug fixes.
 
-### Build
+## Commit Messages
 
-```shell
-$ forge build
-```
+Use the format:  
+`<type>(<scope>): <description>`  
+Examples of `<type>`: `feat`, `fix`, `docs`, `test`, `refactor`.  
+Descriptions should be in present tense without a period at the end.
 
-### Test
+## Code of Conduct
 
-```shell
-$ forge test
-```
+We are committed to maintaining a welcoming and inclusive environment. Please be respectful of others' opinions and contributions. For more details, refer to our [Code of Conduct]
 
-### Format
+## Where to Get Help
 
-```shell
-$ forge fmt
-```
-
-### Gas Snapshots
-
-```shell
-$ forge snapshot
-```
-
-### Anvil
-
-```shell
-$ anvil
-```
-
-### Deploy
-
-```shell
-$ forge script script/Counter.s.sol:CounterScript --rpc-url <your_rpc_url> --private-key <your_private_key>
-```
-
-### Cast
-
-```shell
-$ cast <subcommand>
-```
-
-### Help
-
-```shell
-$ forge --help
-$ anvil --help
-$ cast --help
-```
+If you have questions or need assistance, feel free to reach out via slack.
