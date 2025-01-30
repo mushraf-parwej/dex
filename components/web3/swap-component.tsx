@@ -5,15 +5,20 @@ import CoinSelect from "../ui/coinSelect/CoinSelect";
 import { useAccount } from "wagmi";
 import { ConnectButton } from "@rainbow-me/rainbowkit";
 import { ChevronDownIcon } from "@radix-ui/react-icons";
+import { useCoinStore } from "@/store";
 
 const SwapComponent = () => {
   const { isConnected } = useAccount();
   const [sellAmount, setSellAmount] = useState("");
   const [buyAmount, setBuyAmount] = useState("");
+  const { coin1, coin2, setCoin1, setCoin2 } = useCoinStore(); // Add this
 
   const handleSwap = () => {
     setBuyAmount(sellAmount);
     setSellAmount(buyAmount);
+    const tempCoin = coin1;
+    setCoin1(coin2);
+    setCoin2(tempCoin);
   };
 
   return (
