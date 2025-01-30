@@ -1,9 +1,9 @@
 "use client";
 import React from "react";
 
-import ConnectWalletButton from "./ui/CustomButtons/ConnectButton";
 import { DockDemo } from "./ui/Navbar/NavbarDock";
 import { useAccount } from "wagmi";
+import { ConnectButton } from "@rainbow-me/rainbowkit";
 
 const Navbar = () => {
   const { isConnected, address } = useAccount();
@@ -12,8 +12,9 @@ const Navbar = () => {
       <DockDemo />
       {/* <ConnectWalletButton /> */}
       <p className="px-4">
-        <w3m-button />
-        {isConnected && <w3m-network-button />}
+        {/* <w3m-button />
+        {isConnected && <w3m-network-button />} */}
+        <ConnectButton />
       </p>
     </nav>
   );
