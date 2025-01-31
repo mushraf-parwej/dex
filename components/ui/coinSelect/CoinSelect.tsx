@@ -115,25 +115,27 @@ const CoinSelect: React.FC<CoinSelectProps> = ({ coinType }) => {
     <Dialog open={isOpen} onOpenChange={setIsOpen}>
       <DialogTrigger asChild>
         <Button
-          className="bg-transparent border border-white/30 text-white"
+          className="border border-red hover:bg-red/10 transition-colors p-2.5 rounded-lg w-[160px] h-[44px]"
           onClick={() => setIsOpen(true)}
         >
-          <div className="flex flex-row flex-center items-center space-x-5">
+          <div className="flex items-center justify-between w-full">
             {selectedCoin ? (
-              <div className="flex flex-row items-center gap-2">
+              <div className="flex items-center  flex-1 min-w-0">
                 <Image
                   src={selectedCoin?.image}
                   alt={selectedCoin?.name}
                   width={24}
                   height={24}
-                  className="rounded-full"
+                  className="rounded-full shrink-0"
                 />
-                {selectedCoin?.name}
+                <span className="font-medium truncate">
+                  {selectedCoin?.symbol.toUpperCase()}
+                </span>
               </div>
             ) : (
-              `Select Token`
-            )}{" "}
-            <ChevronDownIcon />
+              <span className="text-neutral-400">Select Token</span>
+            )}
+            <ChevronDownIcon className="h-4 w-4 shrink-0" />
           </div>
         </Button>
       </DialogTrigger>

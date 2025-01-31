@@ -36,17 +36,17 @@ export default function RootLayout({
       <body
         className={`${geistSans.variable} ${geistMono.variable} antialiased`}
       >
-        <ThemeProvider attribute="class" defaultTheme="dark" disableTransitionOnChange>
-
+        <ThemeProvider
+          attribute="class"
+          defaultTheme="light"
+          disableTransitionOnChange
+        >
           <WagmiProviderComp initialState={initialState}>
-            <div className="p-5 flex flex-col w-full h-screen justify-center items-center">
-
+            <div className="">
               <Navbar />
-              <div className="flex flex-col h-[90vh] w-full justify-center items-center">
-                {children}
-              </div>
-            </div>
 
+              {children}
+            </div>
           </WagmiProviderComp>
         </ThemeProvider>
       </body>
