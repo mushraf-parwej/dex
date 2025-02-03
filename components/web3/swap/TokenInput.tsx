@@ -2,6 +2,8 @@ import { Input } from "../../ui/input";
 import { Card } from "../../ui/card";
 import CoinSelect from "../../ui/coinSelect/CoinSelect";
 import { useCoinStore } from "@/store";
+import Image from "next/image";
+import { wallet } from "@/public/assets/swap";
 
 interface TokenInputProps {
   label: string;
@@ -23,7 +25,7 @@ export const TokenInput = ({
     <Card className="p-4 w-full flex flex-col gap-4 rounded-xl bg-[#E0E0E04D]">
       <div className="flex flex-col md:flex-row items-center justify-between gap-6">
         <Input
-          className="outline-none text-lg w-full border-none p-4 rounded-lg placeholder:text-neutral-500 disabled:opacity-50 disabled:cursor-not-allowed"
+          className="outline-none text-[20px] w-full border-none py-4 rounded-lg placeholder:text-black disabled:opacity-50 disabled:cursor-not-allowed"
           type="number"
           placeholder="0.00"
           value={amount}
@@ -31,6 +33,15 @@ export const TokenInput = ({
           disabled={isDisabled}
         />
         <CoinSelect coinType={coinType} />
+      </div>
+
+      <div className="flex flex-row justify-between items-center w-full text-[14px] text-[#6F6F6F]">
+        {/* //calculate the value of the coin */}
+        ≈$0.00
+        <div className="flex flex-row items-center gap-2">
+          0.00
+          <Image src={wallet} alt="wallet" width={24} height={24} />
+        </div>
       </div>
     </Card>
   );

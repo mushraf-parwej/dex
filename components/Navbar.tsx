@@ -6,6 +6,7 @@ import { ConnectButton } from "@rainbow-me/rainbowkit";
 import Image from "next/image";
 import { notification, theme } from "@/public/assets/navbar";
 import { logo } from "@/public/assets/common";
+import { DockDemo } from "./ui/Navbar/NavbarDock";
 
 const Navbar = () => {
   const { isConnected, address } = useAccount();

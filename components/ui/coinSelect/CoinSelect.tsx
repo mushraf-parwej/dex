@@ -11,7 +11,11 @@ import { Button } from "../button";
 import { ScrollArea } from "../scroll-area";
 import { Input } from "../input";
 import { useCoinStore } from "@/store";
-import { ArrowDownIcon, ChevronDownIcon } from "@radix-ui/react-icons";
+import {
+  ArrowDownIcon,
+  ChevronDownIcon,
+  MagnifyingGlassIcon,
+} from "@radix-ui/react-icons";
 import Image from "next/image";
 import { Skeleton } from "@/components/ui/skeleton"; // Add this import
 
@@ -133,7 +137,7 @@ const CoinSelect: React.FC<CoinSelectProps> = ({ coinType }) => {
                 </span>
               </div>
             ) : (
-              <span className="text-neutral-400">Select Token</span>
+              <span className="">Select Token</span>
             )}
             <ChevronDownIcon className="h-4 w-4 shrink-0" />
           </div>
@@ -142,15 +146,19 @@ const CoinSelect: React.FC<CoinSelectProps> = ({ coinType }) => {
 
       <DialogContent className="max-w-2xl">
         <DialogHeader>
-          <DialogTitle>Select a Cryptocurrency</DialogTitle>
+          <DialogTitle className="text-[20px]">Select Tokens</DialogTitle>
         </DialogHeader>
 
-        <div className="space-y-4">
-          <Input
-            placeholder="Search coins..."
-            value={searchQuery}
-            onChange={(e) => setSearchQuery(e.target.value)}
-          />
+        <div className="space-y-4 bg-[#E0E0E04D] p-[20px]">
+          <div className="flex flex-row items-center">
+            <MagnifyingGlassIcon />
+            <Input
+              placeholder="Search"
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+              className=""
+            />
+          </div>
 
           {isLoading && <CoinLoadingSkeleton />}
 
