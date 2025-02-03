@@ -1,17 +1,41 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { ethers } from "ethers";
 import ABI from "../../lib/config/factoryabi.json";
+
 const factoryAddress = "0x32e175A35150847cFe9172cca3810e1d7E48f773";
+const tokenA = "0x1f9840a85d5aF5bf1D1762F925BDADdC4201F984";
+const tokenB = "0xaA8E23Fb1079EA71e0a56F48a2aA51851D8433D0";
+const feeTier = 3000;
 
 const Pool = () => {
   const [token0, setToken0] = useState("");
   const [token1, setToken1] = useState("");
-  const [feeTier, setFeeTier] = useState("");
+  const [feeTierInput, setFeeTierInput] = useState("");
   const [loading, setLoading] = useState(false);
   const [txHash, setTxHash] = useState("");
   const [poolAddress, setPoolAddress] = useState("");
+  const [existingPool, setExistingPool] = useState("");
+
+  useEffect(() => {
+    const fetchPoolAddress = async () => {
+      if (!window.ethereum) return;
+      try {
+        const provider = new ethers.BrowserProvider(window.ethereum);
+        const factory = new ethers.Contract(factoryAddress, ABI, provider);
+        const pool = await factory.getPool(tokenA, tokenB, feeTier);
+        if (pool !== ethers.ZeroAddress) {
+          setExistingPool(pool);
+        } else {
+          setExistingPool("No pool found");
+        }
+      } catch (error) {
+        console.error("Error fetching pool address:", error);
+      }
+    };
+    fetchPoolAddress();
+  }, []);
 
   const createPool = async () => {
     if (!window.ethereum) {
@@ -25,7 +49,7 @@ const Pool = () => {
       const signer = await provider.getSigner();
       const factory = new ethers.Contract(factoryAddress, ABI, signer);
 
-      const fee = parseInt(feeTier, 10);
+      const fee = parseInt(feeTierInput, 10);
       if (isNaN(fee)) {
         alert("Invalid fee tier");
         setLoading(false);
@@ -37,17 +61,14 @@ const Pool = () => {
       setTxHash(tx.hash);
 
       const receipt = await tx.wait();
-      // const poolCreatedEvent = receipt.logs.find((log: any) =>
-      //   log.topics.includes(factory.interface.getEventTopic("PoolCreated"))
-      // );
-      const poolCreatedEvent = receipt.logs.find((log: any) =>
+      const poolCreatedEvent = receipt.logs.find((log) =>
         log.topics.includes(factory.interface.getEvent("PoolCreated").topicHash)
       );
 
       if (poolCreatedEvent) {
-        const poolAddress = ethers.getAddress(poolCreatedEvent.args[2]); // Extract pool address
-        console.log("Pool Address:", poolAddress);
-        setPoolAddress(poolAddress);
+        const newPoolAddress = ethers.getAddress(poolCreatedEvent.args[2]);
+        console.log("Pool Address:", newPoolAddress);
+        setPoolAddress(newPoolAddress);
       }
 
       setLoading(false);
@@ -80,8 +101,8 @@ const Pool = () => {
       <input
         type="text"
         placeholder="Fee Tier (e.g. 3000)"
-        value={feeTier}
-        onChange={(e) => setFeeTier(e.target.value)}
+        value={feeTierInput}
+        onChange={(e) => setFeeTierInput(e.target.value)}
         className="w-full p-2 mb-4 border rounded"
       />
 
@@ -114,6 +135,22 @@ const Pool = () => {
           <strong>Pool Address:</strong> {poolAddress}
         </p>
       )}
+
+      <div className="mt-8 p-4 bg-gray-100 rounded">
+        <h3 className="text-lg font-semibold">Existing Pool</h3>
+        <p className="text-sm">
+          <strong>Token A:</strong> {tokenA}
+        </p>
+        <p className="text-sm">
+          <strong>Token B:</strong> {tokenB}
+        </p>
+        <p className="text-sm">
+          <strong>Fee Tier:</strong> {feeTier}
+        </p>
+        <p className="text-sm">
+          <strong>Pool Address:</strong> {existingPool || "Fetching..."}
+        </p>
+      </div>
     </div>
   );
 };
