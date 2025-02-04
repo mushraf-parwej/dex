@@ -18,7 +18,8 @@ import {
 } from "@radix-ui/react-icons";
 import Image from "next/image";
 import { Skeleton } from "@/components/ui/skeleton"; // Add this import
-
+import { SearchInput } from "@/components/common/SearchBar";
+import { filterCoins } from "@/lib/utils/utils";
 const ITEMS_PER_PAGE = 20;
 
 interface Coin {
@@ -80,9 +81,7 @@ const CoinSelect: React.FC<CoinSelectProps> = ({ coinType }) => {
     fetchCoinData();
   }, [isOpen]);
 
-  const filteredCoins = coinData.filter((coin) =>
-    coin.name.toLowerCase().includes(searchQuery.toLowerCase())
-  );
+  const filteredCoins = filterCoins(coinData, searchQuery);
 
   const paginatedCoins = filteredCoins.slice(0, visibleCoins);
 
@@ -150,15 +149,11 @@ const CoinSelect: React.FC<CoinSelectProps> = ({ coinType }) => {
         </DialogHeader>
 
         <div className="space-y-4 bg-[#E0E0E04D] p-[20px]">
-          <div className="flex flex-row items-center">
-            <MagnifyingGlassIcon />
-            <Input
-              placeholder="Search"
-              value={searchQuery}
-              onChange={(e) => setSearchQuery(e.target.value)}
-              className=""
-            />
-          </div>
+          <SearchInput
+            value={searchQuery}
+            onChange={(e) => setSearchQuery(e.target.value)}
+            placeholder="Search tokens..."
+          />
 
           {isLoading && <CoinLoadingSkeleton />}
 
