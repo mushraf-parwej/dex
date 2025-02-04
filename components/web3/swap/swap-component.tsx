@@ -12,7 +12,7 @@ import {
   AccordionItem,
   AccordionTrigger,
 } from "@/components/ui/accordion";
-
+import TabIcon from "./SettingsButton";
 const SwapComponent = () => {
   const { isConnected } = useAccount();
   const {

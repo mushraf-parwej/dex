@@ -2,6 +2,7 @@ import { create } from "zustand";
 import zukeeper from "zukeeper"; // Ensure this is the correct import
 
 interface Coin {
+  image: string;
   id: string;
   name: string;
   symbol: string;
