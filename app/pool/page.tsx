@@ -25,6 +25,12 @@ const Pool = () => {
         const provider = new ethers.BrowserProvider(window.ethereum);
         const factory = new ethers.Contract(factoryAddress, ABI, provider);
         const pool = await factory.getPool(tokenA, tokenB, feeTier);
+        const pool2 = await factory.getPool(
+          "0x7b79995e5f793A07Bc00c21412e50Ecae098E7f9",
+          "0x92f3B59a79bFf5dc60c0d59eA13a44D082B2bdFC",
+          3000
+        );
+        console.log("pool 2", pool2);
         if (pool !== ethers.ZeroAddress) {
           setExistingPool(pool);
         } else {
