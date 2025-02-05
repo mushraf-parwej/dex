@@ -9,6 +9,10 @@ const config: Config = {
   ],
   theme: {
   	extend: {
+
+		fontFamily: {
+			urbanist: ['Urbanist', 'sans-serif'],
+		  },
   		colors: {
   			red: '#CE192D',
   			background: 'hsl(var(--background))',
