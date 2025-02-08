@@ -1,14 +1,29 @@
 import { motion } from "framer-motion";
 import { ArrowLeftIcon } from "@radix-ui/react-icons";
+import { Card } from "../../ui/card";
 import Image from "next/image";
-import { Card, CardContent, CardDescription } from "@/components/ui/card";
+import {
+  Accordion,
+  AccordionContent,
+  AccordionItem,
+  AccordionTrigger,
+} from "@/components/ui/accordion";
+import { backButton } from "@/public/assets/common";
 
 interface SwapConfirmationProps {
   data: {
     sellAmount: string;
     buyAmount: string;
-    coin1: any;
-    coin2: any;
+    coin1: {
+      image: string;
+      name: string;
+      symbol: string;
+    };
+    coin2: {
+      image: string;
+      name: string;
+      symbol: string;
+    };
   };
   onBack: () => void;
   onConfirm: () => void;
@@ -24,64 +39,92 @@ export const SwapConfirmation = ({
       initial={{ opacity: 0, y: 20 }}
       animate={{ opacity: 1, y: 0 }}
       exit={{ opacity: 0, y: -20 }}
-      className="w-full space-y-6 min-w-[480px] min-h-[420px] flex flex-col justify-between"
+      className="w-[480px] min-h-[420px] flex flex-col gap-6"
     >
-      <div className="flex items-center gap-2">
-        <button onClick={onBack} className="p-2  rounded-full">
-          <ArrowLeftIcon className="w-4 h-4" />
+      {/* Header */}
+      <div className="flex flex-row items-center gap-2">
+        <button onClick={onBack} className=" rounded-full transition-colors">
+          <Image src={backButton} alt="Back" width={18} height={18} />
         </button>
-        <h2 className="text-xl font-semibold">Confirm Swap</h2>
+        <h2 className="text-sm">Back</h2>
       </div>
 
-      {/* <div className="space-y-4  p-4 rounded-lg">
-        <div className="flex justify-between items-center">
-          <div className="flex items-center gap-2">
-            <Image
-              src={data.coin1.image}
-              width={24}
-              height={24}
-              alt={data.coin1.name}
-              className="rounded-full"
-            />
-            <span>{data.sellAmount}</span>
+      {/* Token Cards */}
+      <div className="grid grid-cols-2 gap-4">
+        {/* Sell Token */}
+        <Card className="p-4 flex flex-col items-center gap-4">
+          <span className="text-neutral-400">You Pay</span>
+          <Image
+            src={data.coin1.image}
+            width={48}
+            height={48}
+            alt={data.coin1.name}
+            className="rounded-full"
+          />
+          <div className="flex flex-row items-center gap-1 w-full ">
+            <span className="text-lg font-medium">{data.sellAmount}</span>
+            <span className="text-sm text-neutral-400">
+              {data.coin1.symbol.toUpperCase()}
+            </span>
           </div>
-          <span>{data.coin1.symbol.toUpperCase()}</span>
-        </div>
+        </Card>
 
-        <div className="flex justify-between items-center">
-          <div className="flex items-center gap-2">
-            <Image
-              src={data.coin2.image}
-              width={24}
-              height={24}
-              alt={data.coin2.name}
-              className="rounded-full"
-            />
-            <span>{data.buyAmount}</span>
+        {/* Buy Token */}
+        <Card className="p-4 flex flex-col items-center gap-4">
+          <span className="text-neutral-400">You Receive</span>
+          <Image
+            src={data.coin2.image}
+            width={48}
+            height={48}
+            alt={data.coin2.name}
+            className="rounded-full"
+          />
+          <div className="flex flex-row items-center gap-1 w-full">
+            <span className="text-lg font-medium">{data.buyAmount}</span>
+            <span className="text-sm text-neutral-400">
+              {data.coin2.symbol.toUpperCase()}
+            </span>
           </div>
-          <span>{data.coin2.symbol.toUpperCase()}</span>
-        </div>
+        </Card>
       </div>
 
-      <button onClick={onConfirm} className="red-btn w-full">
+      {/* Transaction Details */}
+      <Accordion type="single" collapsible className="w-full">
+        <AccordionItem value="details" className="border rounded-lg">
+          <AccordionTrigger className="px-4 py-3 text-neutral-400 hover:no-underline">
+            1 {data.coin1.symbol.toUpperCase()} = {data.buyAmount}{" "}
+            {data.coin2.symbol.toUpperCase()}
+          </AccordionTrigger>
+          <AccordionContent className="px-4 py-2">
+            <div className="flex justify-between text-sm text-neutral-400">
+              <span>Platform fees</span>
+              <span>0.3%</span>
+            </div>
+          </AccordionContent>
+        </AccordionItem>
+      </Accordion>
+      <Accordion type="single" collapsible className="w-full">
+        <AccordionItem value="details" className="border rounded-lg">
+          <AccordionTrigger className="px-4 py-3 text-neutral-400 hover:no-underline">
+            1 {data.coin1.symbol.toUpperCase()} = {data.buyAmount}{" "}
+            {data.coin2.symbol.toUpperCase()}
+          </AccordionTrigger>
+          <AccordionContent className="px-4 py-2">
+            <div className="flex justify-between text-sm text-neutral-400">
+              <span>Platform fees</span>
+              <span>0.3%</span>
+            </div>
+          </AccordionContent>
+        </AccordionItem>
+      </Accordion>
+
+      {/* Confirm Button */}
+      <button
+        onClick={onConfirm}
+        className="w-full bg-red hover:bg-red/90 text-white font-medium py-3 px-4 rounded-lg transition-colors"
+      >
         Confirm Swap
-      </button> */}
-      <div className="flex flex-col items-center justify-center space-y-4 w-full h-full">
-        <div className="flex flex-row w-full justify-center items-center space-x-4">
-          <Card>
-            <CardContent>
-              <CardDescription>
-                <Image
-                  alt="data"
-                  src={data.coin1.image}
-                  width={24}
-                  height={24}
-                />
-              </CardDescription>
-            </CardContent>
-          </Card>
-        </div>
-      </div>
+      </button>
     </motion.div>
   );
 };
