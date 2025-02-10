@@ -23,7 +23,7 @@ export const TokenInput = ({
 
   return (
     <Card className="p-4 w-full flex flex-col gap-4 rounded-xl bg-[#E0E0E04D]">
-      <div className="flex flex-col md:flex-row items-center justify-between gap-6">
+      <div className="flex flex-row items-center justify-between gap-6">
         <Input
           className="outline-none text-[20px] w-full border-none py-4 rounded-lg placeholder:text-black disabled:opacity-50 disabled:cursor-not-allowed"
           type="number"
