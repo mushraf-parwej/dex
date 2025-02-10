@@ -21,6 +21,6 @@ export const ActionButton = ({
     </button>
   ) : (
     <div className="flex justify-center">
-      <ConnectButton />
+      <ConnectButton accountStatus="avatar" />
     </div>
   );

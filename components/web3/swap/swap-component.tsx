@@ -100,7 +100,7 @@ const SwapComponent: FC = () => {
   );
 
   return (
-    <main className="min-w-[480px] min-h-[420px] z-30 mx-auto p-6">
+    <main className="md:min-w-[480px] w-full min-h-[420px]  z-30 mx-auto p-6">
       <Card className="flex flex-col border backdrop-blur-lg rounded-xl p-4 gap-6 shadow-lg">
         <AnimatePresence mode="wait">
           {isSubmitted ? (
@@ -136,8 +136,7 @@ const SwapComponent: FC = () => {
               transition={{ duration: 0.2 }}
               className="flex flex-col gap-4"
             >
-              {/* Use a semantic form element for better accessibility */}
-              <div onSubmit={handleSubmit}>
+              <div onSubmit={handleSubmit} className="space-y-5">
                 <div className="flex flex-col relative gap-2">
                   <TokenInput
                     label="Sell"
