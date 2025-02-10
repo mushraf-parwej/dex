@@ -48,6 +48,18 @@ const Pool = () => {
         const poolAddress = ethers.getAddress(poolCreatedEvent.args[2]); // Extract pool address
         console.log("Pool Address:", poolAddress);
         setPoolAddress(poolAddress);
+
+        // save to mongoDB
+        await fetch("/api/pool", {
+          method: "POST",
+          headers: {"Content-type": "application/json"},
+          body: JSON.stringify({
+            token0,
+            token1,
+            feeTier: fee,
+            poolAddress,
+          }),
+      });
       }
 
       setLoading(false);
@@ -119,3 +131,8 @@ const Pool = () => {
 };
 
 export default Pool;
+
+
+// pool example: Sepolia network
+// tokenA: 0x9047AC7FB3ceD349b3Da20D4b4f01e3e1652d1D4
+// tokenB: 0x346Eebf5b9eFbFc92ac636563633f807688904Be

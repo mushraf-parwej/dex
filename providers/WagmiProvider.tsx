@@ -12,6 +12,8 @@ import {
   optimism,
   arbitrum,
   base,
+  sepolia,
+  holesky,
 } from 'wagmi/chains';
 import {
   QueryClientProvider,
@@ -21,9 +23,9 @@ import {
 
  
 const config = getDefaultConfig({
-  appName: 'My RainbowKit App',
-  projectId: 'YOUR_PROJECT_ID',
-  chains: [mainnet, polygon, optimism, arbitrum, base],
+  appName: "My RainbowKit App",
+  projectId: "3bdcb2f2810725e8f870c033ac5a6223",
+  chains: [mainnet, polygon, optimism, arbitrum, base, sepolia, holesky],
   ssr: true, // If your dApp uses server side rendering (SSR)
 });
  

@@ -30,6 +30,7 @@
     "ethers": "^6.13.4",
     "framer-motion": "^11.11.9",
     "lucide-react": "^0.452.0",
+    "mongoose": "^8.10.0",
     "next": "14.2.15",
     "next-themes": "^0.3.0",
     "react": "^18",
