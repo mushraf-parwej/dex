@@ -6,10 +6,7 @@ import { config } from "@/lib/config/wallet-config";
 import { headers } from "next/headers";
 import WagmiProviderComp from "@/providers/WagmiProvider";
 import { ThemeProvider } from "@/lib/utils/theme-provider";
-import Navbar from "@/components/Navbar";
-
-
-
+import Navbar from "@/components/common/Navbar";
 
 export const metadata: Metadata = {
   title: "DEX",
@@ -26,7 +23,6 @@ export default function RootLayout({
   return (
     <html lang="en">
       <body className="font-urbanist antialiased">
-
         <ThemeProvider
           attribute="class"
           defaultTheme="light"
