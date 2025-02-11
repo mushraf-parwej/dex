@@ -3,6 +3,11 @@
 import { ChevronDown } from "lucide-react";
 import { useState } from "react";
 import Image from "next/image";
+import eth from "@/public/assets/icons/eth.png.png";
+import group from "@/public/assets/icons/Group 1321316732.png";
+import vector from "@/public/assets/icons/Vector.png"
+import newImage from "@/public/assets/icons/Shape.png"
+
 
 const options = ["1 day", "1 week", "1 Month", "1 Year"];
 const buttons = ["Market", "+1%", "+5%", "+10%"];
@@ -13,40 +18,35 @@ export default function LimitComponent() {
 
   return (
     <div
-      className="font-urbanist absolute top-[126px] left-[464px] w-[512px] h-[541px] max-w-[512px] rounded-[10px] border border-white/[0.1] shadow-lg p-4 flex flex-col gap-4"
-      style={{ borderWidth: "1px", fontFamily: "'Urbanist', sans-serif" }}
-    >
+    className="font-urbanist absolute top-[75%] left-[50%] transform -translate-x-[50%] -translate-y-[50%] w-[512px] h-[541px] max-w-[512px] rounded-[10px] border border-white/[0.1] shadow-lg p-4 flex flex-col gap-4 text-justify"
+    style={{ borderWidth: "1px", fontFamily: "'Urbanist', sans-serif" }}
+  >
+   
       <div className="w-[480px] h-[381px] rounded-[10px] flex flex-col gap-4 bg-[#F8F9FA]">
         <div className="w-[480px] h-[133px] rounded-[10px] p-4 bg-[#E0E0E04D]">
           <div className="flex flex-col gap-[10px]">
             <div className="flex justify-between items-center">
               <div className="flex items-center gap-1">
                 <span className="text-gray-500 text-sm">When 1</span>
-                <img
-                  src="/icons/eth-icon.svg"
+                <Image
+                  src={eth}
+                  width={10}
+                  height={10}
                   alt="ETH Icon"
                   className="w-4 h-4"
                 />
                 <span className="text-gray-500 text-sm font-bold">ETH</span>
                 <span className="text-gray-500 text-sm">is worth</span>
               </div>
-              <img
-                src="/icons/options-icon.svg"
-                alt="Options Icon"
-                className="w-4 h-4"
-              />
+
             </div>
             <div className="flex justify-between items-center">
               <h2 className="text-2xl font-bold text-gray-900">3191.21</h2>
-              <div className="flex items-center gap-[5px]">
-              <Image
-                  src="/path-to-image.png"
-                  width={10}
-                  height={10}
-                  alt="asd"
-                />
-                <span className="text-gray-900 font-semibold text-sm">QRN</span>
-              </div>
+              <div className="flex items-center space-x-2 p-1  cursor-pointer">
+  <Image src={group} width={20} height={20} alt="vector" className="w-5 h-5" />
+  <span className="font-semibold px-2">QRN</span>
+ 
+</div>
             </div>
           </div>
           <div className="flex gap-2 mt-3 w-[219px] h-[28px]">
@@ -74,12 +74,13 @@ export default function LimitComponent() {
               <p className="text-xs text-gray-400">≈$0.00</p>
             </div>
             <div className="relative">
-              <div className="flex items-center space-x-2 p-1 rounded-md border border-red-500 cursor-pointer">
-                <span className="text-green-500 font-semibold px-2 py-1">
-                  HBK
-                </span>
-                <ChevronDown className="text-gray-500 w-4 h-4" />
-              </div>
+            <div className="flex items-center space-x-2 p-1 rounded-md border border-red-500 cursor-pointer">
+  <Image src={newImage} width={20} height={20} alt="vector" className="w-5 h-5" />
+  <span className="font-semibold px-2">HBK</span>
+  <ChevronDown className="text-gray-500 w-4 h-4" />
+</div>
+
+              
               <div className="absolute top-full left-0 mt-1 bg-white shadow-lg rounded-md w-32 hidden group-hover:block">
                 <ul className="text-sm text-gray-700 p-2 space-y-1">
                   <li className="hover:bg-gray-200 p-2 rounded">Option 1</li>
@@ -95,12 +96,11 @@ export default function LimitComponent() {
               <p className="text-gray-400 text-xs">≈$0.00</p>
             </div>
             <div className="relative">
-              <div className="flex items-center space-x-2 p-1 rounded-md border border-red-500 cursor-pointer">
-                <span className="text-green-500 font-semibold px-2 py-1">
-                  QRN
-                </span>
-                <ChevronDown className="text-gray-500 w-4 h-4" />
-              </div>
+            <div className="flex items-center space-x-2 p-1 rounded-md border border-red-500 cursor-pointer">
+  <Image src={group} width={20} height={20} alt="vector" className="w-5 h-5" />
+  <span className="font-semibold px-2">QRN</span>
+  <ChevronDown className="text-gray-500 w-4 h-4" />
+</div>
               <div className="absolute top-full left-0 mt-1 bg-white shadow-lg rounded-md w-32 hidden group-hover:block">
                 <ul className="text-sm text-gray-700 p-2 space-y-1">
                   <li className="hover:bg-gray-200 p-2 rounded">Option A</li>
