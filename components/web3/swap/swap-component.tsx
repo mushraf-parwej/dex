@@ -157,7 +157,7 @@ const SwapComponent: FC = () => {
                 <Accordion type="single" collapsible>
                   <AccordionItem value="item-1" className="border">
                     <AccordionTrigger className="text-neutral-500 leading-relaxed p-2 rounded-md text-base hover:no-underline">
-                      1QRN = 1.023USDT ≈ ($1)
+                      1QRN = 1.023USDT ≈ ($1) 
                     </AccordionTrigger>
                     <AccordionContent className="p-2 no-underline border-none">
                       <div className="flex flex-col gap-2 text-neutral-500">
