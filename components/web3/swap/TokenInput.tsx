@@ -23,7 +23,9 @@ export const TokenInput = ({
 
   return (
     <Card className="p-4 w-full flex flex-col gap-4 rounded-xl bg-[#E0E0E04D]">
-      <div className="flex flex-row items-center justify-between gap-6">
+      <span className="text-[10px] font-urbanist text-md ">{label}</span>
+      <div className="flex flex-row items-center justify-between gap-6 mt-[-16px]">
+        
         <Input
           className="outline-none text-[20px] w-full border-none py-4 rounded-lg placeholder:text-black disabled:opacity-50 disabled:cursor-not-allowed"
           type="number"
@@ -34,7 +36,7 @@ export const TokenInput = ({
         />
         <CoinSelect coinType={coinType} />
       </div>
-
+      
       <div className="flex flex-row justify-between items-center w-full text-[14px] text-[#6F6F6F]">
         {/* //calculate the value of the coin */}
         ≈$0.00
