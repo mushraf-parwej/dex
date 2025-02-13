@@ -45,9 +45,24 @@ const Pool = () => {
       );
 
       if (poolCreatedEvent) {
-        const poolAddress = ethers.getAddress(poolCreatedEvent.args[2]); // Extract pool address
+        const poolAddress = ethers.getAddress(poolCreatedEvent.args[4]); // args[4] is the pool address not args[2]
         console.log("Pool Address:", poolAddress);
         setPoolAddress(poolAddress);
+
+        // save to mongoDB
+        const response = await fetch("/api/pools", {
+          method: "POST",
+          headers: { "Content-type": "application/json" },
+          body: JSON.stringify({
+            token0,
+            token1,
+            feeTier: fee,
+            poolAddress,
+          }),
+        });
+
+        const resData = await response.json();
+        console.log("Pool saved in DB:", resData);
       }
 
       setLoading(false);
@@ -58,7 +73,7 @@ const Pool = () => {
   };
 
   return (
-    <div className="max-w-xl mx-auto mt-10 p-6 bg-white shadow-lg rounded-lg">
+    <div className="max-w-md mx-auto mt-10 p-6 bg-white shadow-lg rounded-lg">
       <h2 className="text-xl font-semibold mb-4 text-black">
         Create a New Pool
       </h2>
@@ -119,3 +134,4 @@ const Pool = () => {
 };
 
 export default Pool;
+
