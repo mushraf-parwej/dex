@@ -31,6 +31,8 @@ const Pool = () => {
     error: "",
   });
 
+  const { liquidityTxHash, error } = liquidityState;
+
   useEffect(() => {
     const fetchPoolAddress = async () => {
       if (!window.ethereum) return;
@@ -91,8 +93,8 @@ const Pool = () => {
     }
   };
 
-   // Calculate ticks from price
-   const calculateTicks = (price, isMin) => {
+  // Calculate ticks from price
+  const calculateTicks = (price, isMin) => {
     const basePrice = parseFloat(price);
     if (isNaN(basePrice) || basePrice <= 0) return 0;
 
@@ -247,7 +249,7 @@ const Pool = () => {
         </p>
       </div>
       {/* Liquidity Management Section */}
-      {poolAddress && (
+      {existingPool && (
         <div className="mt-8 border-t pt-6">
           <h2 className="text-xl font-semibold mb-4 text-black">
             Add Liquidity
@@ -312,23 +314,23 @@ const Pool = () => {
             {isAddingLiquidity ? "Adding Liquidity..." : "Add Liquidity"}
           </button>
 
-          {liquidityState.liquidityTxHash && (
+          {liquidityTxHash && (
             <p className="mt-4 text-sm">
               <strong>Liquidity Transaction Hash:</strong>{" "}
               <a
-                href={`https://sepolia.etherscan.io/tx/${liquidityState.liquidityTxHash}`}
+                href={`https://sepolia.etherscan.io/tx/${liquidityTxHash}`}
                 target="_blank"
                 rel="noopener noreferrer"
                 className="text-blue-600 underline"
               >
-                {liquidityState.liquidityTxHash}
+                {liquidityTxHash}
               </a>
             </p>
           )}
 
-          {liquidityState.error && (
+          {error && (
             <p className="mt-4 text-sm text-red-600">
-              <strong>Error:</strong> {liquidityState.error}
+              <strong>Error:</strong> {error}
             </p>
           )}
         </div>
