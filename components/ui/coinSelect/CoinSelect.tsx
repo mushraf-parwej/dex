@@ -11,18 +11,14 @@ import { Button } from "../button";
 import { ScrollArea } from "../scroll-area";
 import { Input } from "../input";
 import { useCoinStore } from "@/store";
-import {
-  ArrowDownIcon,
-  ChevronDownIcon,
-  MagnifyingGlassIcon,
-} from "@radix-ui/react-icons";
+import { ChevronDownIcon, MagnifyingGlassIcon } from "@radix-ui/react-icons";
 import Image from "next/image";
-import { Skeleton } from "@/components/ui/skeleton"; // Add this import
+import { Skeleton } from "@/components/ui/skeleton";
 import { SearchInput } from "@/components/common/SearchBar";
-import { filterCoins } from "@/lib/utils/utils";
-const ITEMS_PER_PAGE = 20;
+import { filterCoins} from "@/lib/utils/utils";
 
-interface Coin {
+const ITEMS_PER_PAGE = 20;
+export interface Coin {
   id: string;
   name: string;
   symbol: string;
@@ -30,7 +26,7 @@ interface Coin {
 }
 
 interface CoinSelectProps {
-  coinType: "coin1" | "coin2"; // To distinguish between the two coin selectors
+  coinType: "coin1" | "coin2";
 }
 
 const CoinLoadingSkeleton = () => (
@@ -49,6 +45,7 @@ const CoinLoadingSkeleton = () => (
 const CoinSelect: React.FC<CoinSelectProps> = ({ coinType }) => {
   const [isOpen, setIsOpen] = useState(false);
   const [coinData, setCoinData] = useState<Coin[]>([]);
+  const [customTokens, setCustomTokens] = useState<Coin[]>([]);
   const [searchQuery, setSearchQuery] = useState("");
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -58,30 +55,61 @@ const CoinSelect: React.FC<CoinSelectProps> = ({ coinType }) => {
   const { coin1, coin2, setCoin1, setCoin2 } = useCoinStore();
 
   useEffect(() => {
-    const fetchCoinData = async () => {
+    const fetchTokens = async () => {
       if (!isOpen) return;
 
       try {
         setIsLoading(true);
         setError(null);
-        const data = await getCoinData();
-        if (Array.isArray(data)) {
-          setCoinData(data);
-          setVisibleCoins(ITEMS_PER_PAGE);
+
+        // Fetch CoinGecko tokens
+        const coinGeckoData = await getCoinData();
+        if (Array.isArray(coinGeckoData)) {
+          setCoinData(coinGeckoData);
         } else {
-          setError("Invalid data format");
+          setError("Invalid CoinGecko data format");
+        }
+
+        // Fetch Custom Tokens from MongoDB
+        const res = await fetch("/api/pools");
+        const poolData = await res.json();
+        if (Array.isArray(poolData)) {
+          const uniqueTokens = new Map();
+
+          poolData.forEach((pool) => {
+            if (!uniqueTokens.has(pool.token0)) {
+              uniqueTokens.set(pool.token0, {
+                name: `Custom Token`,
+                symbol: `CUSTOM`,
+                address: pool.token0,
+              });
+            }
+            if (!uniqueTokens.has(pool.token1)) {
+              uniqueTokens.set(pool.token1, {
+                name: `Custom Token`,
+                symbol: `CUSTOM`,
+                address: pool.token1,
+              });
+            }
+          });
+
+          setCustomTokens(Array.from(uniqueTokens.values()));
+        } else {
+          console.error("Error fetching pools");
         }
       } catch (err) {
-        setError("Failed to fetch coin data");
+        setError("Failed to fetch token data");
       } finally {
         setIsLoading(false);
       }
     };
 
-    fetchCoinData();
+    fetchTokens();
   }, [isOpen]);
 
-  const filteredCoins = filterCoins(coinData, searchQuery);
+  const allTokens = [...customTokens, ...coinData];
+
+  const filteredCoins = filterCoins(allTokens, searchQuery);
 
   const paginatedCoins = filteredCoins.slice(0, visibleCoins);
 
@@ -102,7 +130,6 @@ const CoinSelect: React.FC<CoinSelectProps> = ({ coinType }) => {
   );
 
   const handleSelectCoin = (coin: Coin) => {
-    // Select coin based on `coinType` prop
     if (coinType === "coin1") {
       setCoin1(coin);
     } else {
@@ -111,7 +138,6 @@ const CoinSelect: React.FC<CoinSelectProps> = ({ coinType }) => {
     setIsOpen(false);
   };
 
-  // Decide which coin to display in the button
   const selectedCoin = coinType === "coin1" ? coin1 : coin2;
 
   return (
@@ -123,20 +149,24 @@ const CoinSelect: React.FC<CoinSelectProps> = ({ coinType }) => {
         >
           <div className="flex items-center justify-between w-full">
             {selectedCoin ? (
-              <div className="flex items-center  flex-1 min-w-0">
-                <Image
-                  src={selectedCoin?.image}
-                  alt={selectedCoin?.name}
-                  width={24}
-                  height={24}
-                  className="rounded-full shrink-0"
-                />
+              <div className="flex items-center flex-1 min-w-0">
+                {selectedCoin.image ? (
+                  <Image
+                    src={selectedCoin.image}
+                    alt={selectedCoin.name}
+                    width={24}
+                    height={24}
+                    className="rounded-full shrink-0"
+                  />
+                ) : (
+                  <div className="w-6 h-6 bg-gray-300 rounded-full shrink-0" />
+                )}
                 <span className="font-medium truncate">
-                  {selectedCoin?.symbol.toUpperCase()}
+                  {selectedCoin.symbol.toUpperCase()}
                 </span>
               </div>
             ) : (
-              <span className="">Select Token</span>
+              <span>Select Token</span>
             )}
             <ChevronDownIcon className="h-4 w-4 shrink-0" />
           </div>
@@ -170,17 +200,10 @@ const CoinSelect: React.FC<CoinSelectProps> = ({ coinType }) => {
               {paginatedCoins.map((coin, index) => (
                 <div
                   key={coin.id || index}
-                  className="p-2 border-b cursor-pointer flex flex-row items-center space-x-2  hover:bg-neutral-100 dark:hover:bg-neutral-800 transition-colors"
+                  className="p-2 border-b cursor-pointer flex flex-row items-center space-x-2 hover:bg-neutral-100 dark:hover:bg-neutral-800 transition-colors"
                   onClick={() => handleSelectCoin(coin)}
                   ref={index === paginatedCoins.length - 1 ? lastCoinRef : null}
                 >
-                  <Image
-                    height={34}
-                    width={34}
-                    src={coin.image}
-                    alt={coin.name}
-                    className="rounded-full"
-                  />
                   <p>{coin.name}</p>
                   <span className="text-sm text-neutral-500 ml-auto">
                     {coin.symbol.toUpperCase()}
