@@ -2,6 +2,7 @@ import "./globals.css";
 import type { Metadata } from "next";
 import Providers from "@/components/Providers";
 import Navbar from "@/components/common/Navbar";
+import { StepProvider } from "@/context/StepContext";
 
 export const metadata: Metadata = {
   title: "DEX",
@@ -16,12 +17,21 @@ export default function RootLayout({
   return (
     <html lang="en">
       <body className="font-urbanist antialiased">
-        <Providers>
-          <div className="">
-            <Navbar />
-            {children}
-          </div>
-        </Providers>
+        <ThemeProvider
+          attribute="class"
+          defaultTheme="light"
+          disableTransitionOnChange
+        >
+          <WagmiProviderComp initialState={initialState}>
+            <div className="">
+              <StepProvider>
+                <Navbar />
+
+                {children}
+              </StepProvider>
+            </div>
+          </WagmiProviderComp>
+        </ThemeProvider>
       </body>
     </html>
   );
