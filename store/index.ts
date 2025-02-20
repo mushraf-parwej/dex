@@ -6,6 +6,7 @@ interface Coin {
   id: string;
   name: string;
   symbol: string;
+  address: string;
 }
 
 interface CoinStore {

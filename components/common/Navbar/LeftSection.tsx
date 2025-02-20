@@ -18,7 +18,7 @@ const LeftSection = () => {
       <div className="hidden md:flex items-center gap-6">
         <NavLink href="/" label="Trade" />
         <NavLink href="/pool" label="Pool" />
-        <NavLink href="/explore" label="Explore" />
+        <NavLink href="/explore/tokens" label="Explore" />
       </div>
     </div>
   );
