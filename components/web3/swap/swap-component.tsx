@@ -79,8 +79,8 @@ const swapTokens = () => {
         recipient,
         zeroForOne,
         amountSpecified,
-        sqrtPriceLimitX96,
-        data
+        sqrtPriceLimitX96, // fetch from pool poolcontract
+        data // optional
       );
       console.log("Transaction sent:", tx.hash);
       setTxHash(tx.hash);
@@ -94,52 +94,6 @@ const swapTokens = () => {
       setLoading(false);
     }
   };
-
-  return (
-    <div className="max-w-md mx-auto mt-10 p-6 bg-white shadow-lg rounded-lg">
-      <h2 className="text-xl font-semibold mb-4 text-black">Swap Tokens</h2>
-
-      <input
-        type="text"
-        placeholder="Sell Amount"
-        value={sellAmount}
-        onChange={(e) => setSellAmount(e.target.value)}
-        className="w-full p-2 mb-2 border rounded"
-      />
-
-      <input
-        type="text"
-        placeholder="Buy Amount"
-        value={buyAmount}
-        onChange={(e) => setBuyAmount(e.target.value)}
-        className="w-full p-2 mb-4 border rounded"
-      />
-
-      <button
-        onClick={swapTokens}
-        disabled={loading}
-        className={`w-full p-2 text-white bg-blue-500 rounded ${
-          loading && "opacity-50"
-        }`}
-      >
-        {loading ? "Swapping..." : "Swap Tokens"}
-      </button>
-
-      {txHash && (
-        <p className="mt-4 text-sm">
-          <strong>Transaction Hash:</strong>{" "}
-          <a
-            href={`https://sepolia.etherscan.io/tx/${txHash}`}
-            target="_blank"
-            rel="noopener noreferrer"
-            className="text-blue-600 underline"
-          >
-            {txHash}
-          </a>
-        </p>
-      )}
-    </div>
-  );
 };
 
 const steps = [
