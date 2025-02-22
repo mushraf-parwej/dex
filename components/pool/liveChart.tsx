@@ -41,9 +41,9 @@ export default function LivePriceChart() {
           <Line
             type="monotone"
             dataKey="price"
-            stroke="#8884d8"
+            stroke="#CE192D"
             strokeWidth={2}
-            dot={false}
+            dot={true}
           />
         </LineChart>
       </CardContent>
