@@ -26,8 +26,14 @@ const CreatePool = () => {
     //   alert("Please install MetaMask!");
     //   return;
     // }
+    const data = {
+      coin1,
+      coin2,
+      fee,
+    };
 
     try {
+      console.log(data);
       //   console.log(coin1.address, coin2.address);
       //   setLoading(true);
       //   const provider = new ethers.BrowserProvider(window.ethereum);
@@ -63,7 +69,9 @@ const CreatePool = () => {
       //     );
       //     console.log("Pool Created Decoded Data:", decodedData);
       //     setPoolAddress(decodedData.poolAddress);
-      setCurrentStep(2);
+      if (coin1 && coin2 && fee) {
+        setCurrentStep(2);
+      }
       // Move to next step (confirmation)
     } catch (error) {
       setLoading(false);

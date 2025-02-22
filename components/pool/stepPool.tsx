@@ -38,7 +38,9 @@ const StepPool = () => {
       <div className="flex flex-col gap-6 rounded-lg w-1/2 border p-5">
         {steps.map((step, index) => (
           <motion.div
-            onClick={() => (currentStep > index ? setCurrentStep(index) : null)}
+            onClick={() =>
+              currentStep > index ? setCurrentStep(index + 1) : null
+            }
             key={index}
             variants={stepVariants}
             initial="initial"
