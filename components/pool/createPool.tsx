@@ -12,7 +12,6 @@ const factoryAddress = "0x32e175A35150847cFe9172cca3810e1d7E48f773";
 
 const CreatePool = () => {
   const { coin1, coin2 } = useCoinStore();
-  // console.log(coin1.address, coin2.address);
   const [token0, setToken0] = useState("");
   const [token1, setToken1] = useState("");
   const [fee, setFee] = useState("");
@@ -22,10 +21,6 @@ const CreatePool = () => {
   const { currentStep, setCurrentStep } = useStepContext();
 
   const createPool = async () => {
-    // if (!window.ethereum) {
-    //   alert("Please install MetaMask!");
-    //   return;
-    // }
     const data = {
       coin1,
       coin2,
@@ -34,45 +29,10 @@ const CreatePool = () => {
 
     try {
       console.log(data);
-      //   console.log(coin1.address, coin2.address);
-      //   setLoading(true);
-      //   const provider = new ethers.BrowserProvider(window.ethereum);
-      //   const signer = await provider.getSigner();
-      //   const factory = new ethers.Contract(factoryAddress, ABI, signer);
 
-      //   const feeTier = parseInt(fee, 10);
-      //   if (isNaN(feeTier)) {
-      //     alert("Invalid fee tier");
-      //     setLoading(false);
-      //     return;
-      //   }
-
-      //   const tx = await factory.createPool(
-      //     coin1.address,
-      //     coin2.address,
-      //     feeTier
-      //   );
-      //   console.log("Transaction sent:", tx.hash);
-      //   setTxHash(tx.hash);
-
-      //   const receipt = await tx.wait();
-      //   const poolCreatedEvent = receipt.logs.find((log: any) =>
-      //     log.topics.includes(factory.interface.getEvent("PoolCreated").topicHash)
-      //   );
-
-      //   if (poolCreatedEvent) {
-      //     // Decode the event data to obtain poolAddress
-      //     const decodedData = factory.interface.decodeEventLog(
-      //       "PoolCreated",
-      //       poolCreatedEvent.data,
-      //       poolCreatedEvent.topics
-      //     );
-      //     console.log("Pool Created Decoded Data:", decodedData);
-      //     setPoolAddress(decodedData.poolAddress);
       if (coin1 && coin2 && fee) {
         setCurrentStep(2);
       }
-      // Move to next step (confirmation)
     } catch (error) {
       setLoading(false);
       console.error("Error creating pool:", error);
@@ -95,20 +55,7 @@ const CreatePool = () => {
               select tokens on all supported networks.
             </p>
           </div>
-          {/* <input
-            type="text"
-            placeholder="Token 0 Address"
-            value={token0}
-            onChange={(e) => setToken0(e.target.value)}
-            className="w-full p-2 mb-2 border rounded"
-          />
-          <input
-            type="text"
-            placeholder="Token 1 Address"
-            value={token1}
-            onChange={(e) => setToken1(e.target.value)}
-            className="w-full p-2 mb-2 border rounded"
-          /> */}
+
           <div className="flex flex-row items-center justify-between w-full">
             <CoinSelect coinType="coin1" />
             <CoinSelect coinType="coin2" />
