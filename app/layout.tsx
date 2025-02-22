@@ -7,6 +7,7 @@ import { headers } from "next/headers";
 import WagmiProviderComp from "@/providers/WagmiProvider";
 import { ThemeProvider } from "@/lib/utils/theme-provider";
 import Navbar from "@/components/common/Navbar";
+import { StepProvider } from "@/context/StepContext";
 
 export const metadata: Metadata = {
   title: "DEX",
@@ -30,9 +31,11 @@ export default function RootLayout({
         >
           <WagmiProviderComp initialState={initialState}>
             <div className="">
-              <Navbar />
+              <StepProvider>
+                <Navbar />
 
-              {children}
+                {children}
+              </StepProvider>
             </div>
           </WagmiProviderComp>
         </ThemeProvider>
