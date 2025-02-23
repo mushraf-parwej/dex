@@ -7,7 +7,7 @@ import TopPoolTable from "./TopPoolTable";
 
 const page = () => {
   return (
-    <main className="flex flex-col w-full justify-center items-center p-10 px-40 gap-10 ">
+    <main className="flex flex-col w-full justify-center items-center p-10 px-6 gap-10 md:px-10 ">
       {/* <div className="w-2/3">
         <StepPool />
       </div> */}

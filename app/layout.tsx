@@ -17,10 +17,15 @@ export default function RootLayout({
   return (
     <html lang="en">
       <body className="font-urbanist antialiased">
-        <WagmiProviderComp initialState={initialState}>
-          <div className="">
-            <StepProvider>
-              <Navbar />
+        <ThemeProvider
+          attribute="class"
+          forcedTheme="light"
+          disableTransitionOnChange
+        >
+          <WagmiProviderComp initialState={initialState}>
+            <div className="">
+              <StepProvider>
+                <Navbar />
 
               {children}
             </StepProvider>
