@@ -174,17 +174,10 @@
 import { ChevronDown } from "lucide-react";
 import { useState, useCallback } from "react";
 import Image from "next/image";
-import { ethers } from 'ethers';
 import { useLimitOrder } from "@/hooks/limit/useLimitOrder";
 import eth from "@/public/assets/icons/eth.png.png";
 import group from "@/public/assets/icons/Group 1321316732.png";
-import { TokenInput } from "../web3/swap/TokenInput";
-import { SwapButton } from "../web3/swap/SwapButton";
-import { useAccount } from "wagmi";
-import { useSwap } from "@/hooks/swap/useSwap";
-import { useCoinStore } from "@/store";
-import { Card } from "@/components/ui/card"; // Adjust path as needed
-import { Input } from "../ui/input";
+import newImage from "@/public/assets/icons/Shape.png";
 
 const options = ["1 day", "1 week", "1 Month", "1 Year"];
 const buttons = ["Market", "+1%", "+5%", "+10%"];
@@ -201,26 +194,35 @@ export default function LimitComponent() {
   const [activeButton, setActiveButton] = useState(buttons[0]);
   const [sellAmount, setSellAmount] = useState("");
   const [buyAmount, setBuyAmount] = useState("");
-  const [targetPrice, setTargetPrice] = useState("3191.21"); // Your initial price
+  const [targetPrice, setTargetPrice] = useState("3191.21"); // Initial price
 
   const { submitLimitOrder, isLoading, error } = useLimitOrder();
 
   // Example token addresses - replace with actual addresses
-  const TOKEN_IN = "0xYourTokenInAddress";
-  const TOKEN_OUT = "0xYourTokenOutAddress";
+  const TOKEN_IN = "0xYourTokenInAddress"; // Replace with the actual token address
+  const TOKEN_OUT = "0xYourTokenOutAddress"; // Replace with the actual token address
 
   const handleSubmit = async () => {
     if (!sellAmount || !targetPrice) return;
 
     const deadline = Math.floor(Date.now() / 1000) + EXPIRY_MAPPING[expiry];
 
-    await submitLimitOrder({
-      tokenIn: TOKEN_IN,
-      tokenOut: TOKEN_OUT,
-      amountIn: sellAmount,
-      targetPrice: targetPrice,
-      deadline: deadline,
-    });
+    try {
+      await submitLimitOrder({
+        tokenIn: TOKEN_IN,
+        tokenOut: TOKEN_OUT,
+        amountIn: sellAmount,
+        targetPrice: targetPrice,
+        deadline: deadline,
+      });
+
+      // Reset form fields after successful submission
+      setSellAmount("");
+      setBuyAmount("");
+      setTargetPrice("3191.21");
+    } catch (err) {
+      console.error("Failed to submit limit order:", err);
+    }
   };
 
   const handlePriceAdjustment = (adjustment: string) => {
@@ -241,23 +243,26 @@ export default function LimitComponent() {
   };
 
   return (
-    <main className="md:min-w-[480px] w-full min-h-[420px]  z-30 mx-auto p-6">
-      <Card className="flex flex-col border backdrop-blur-lg rounded-xl p-4 gap-6 shadow-lg">
-        <div className="w-full rounded-xl p-4 bg-[#E0E0E04D]">
-          <div className="flex flex-col gap-2">
+    <div
+      className="font-urbanist absolute top-[75%] left-[50%] transform -translate-x-[50%] -translate-y-[50%] w-[512px] h-[541px] max-w-[512px] rounded-[10px] border border-white/[0.1] shadow-lg p-4 flex flex-col gap-4 text-justify"
+      style={{ borderWidth: "1px", fontFamily: "'Urbanist', sans-serif" }}
+    >
+      <div className="w-[480px] h-[381px] rounded-[10px] flex flex-col gap-4 bg-[#F8F9FA]">
+        <div className="w-[480px] h-[133px] rounded-[10px] p-4 bg-[#E0E0E04D]">
+          <div className="flex flex-col gap-[10px]">
             <div className="flex justify-between items-center">
-              {/* <div>Limit Price</div> */}
-              {coin1 && coin2 ? (
-                <div>
-                  <span className="text-sm text-neutral-700">When 1 </span>
-                  <span className="font-semibold text-neutral-800">
-                    {coin1.symbol}{" "}
-                    <span className="font-normal "> is worth</span>
-                  </span>
-                </div>
-              ) : (
-                <div>Limit Price</div>
-              )}
+              <div className="flex items-center gap-1">
+                <span className="text-gray-500 text-sm">When 1</span>
+                <Image
+                  src={eth}
+                  width={10}
+                  height={10}
+                  alt="ETH Icon"
+                  className="w-4 h-4"
+                />
+                <span className="text-gray-500 text-sm font-bold">ETH</span>
+                <span className="text-gray-500 text-sm">is worth</span>
+              </div>
             </div>
             <div className="flex justify-between items-center">
               <h2 className="text-2xl font-bold text-gray-900">
@@ -268,23 +273,32 @@ export default function LimitComponent() {
                   className="w-32 bg-transparent"
                 />
               </h2>
-              <div className="flex items-center space-x-2 p-1  cursor-pointer">
-  <Image src={group} width={20} height={20} alt="vector" className="w-5 h-5" />
-  <span className="font-semibold px-2">QRN</span>
- 
-</div>
+              <div className="flex items-center space-x-2 p-1 cursor-pointer">
+                <Image
+                  src={group}
+                  width={20}
+                  height={20}
+                  alt="vector"
+                  className="w-5 h-5"
+                />
+                <span className="font-semibold px-2">QRN</span>
+              </div>
             </div>
           </div>
           <div className="flex gap-2 mt-3">
             {buttons.map((label) => (
               <button
                 key={label}
-                onClick={() => setActiveButton(label)}
-                className={`w-[69px] h-[28px] rounded-lg border px-3 py-1 text-xs font-semibold transition-all duration-200 ${
-                  activeButton === label
-                    ? "text-red-500 bg-[#FFF7F7] border-[#CE192D66]"
-                    : "text-gray-900 bg-transparent border-none"
-                }`}
+                onClick={() => {
+                  setActiveButton(label);
+                  handlePriceAdjustment(label);
+                }}
+                className={`w-[69px] h-[28px] rounded-lg border px-3 py-1 text-xs font-semibold transition-all duration-200
+                  ${
+                    activeButton === label
+                      ? "text-red-500 bg-[#FFF7F7] border-[#CE192D66]"
+                      : "text-gray-900 bg-transparent border-none"
+                  }`}
               >
                 {label}
               </button>
@@ -302,21 +316,21 @@ export default function LimitComponent() {
                 className="text-xl font-semibold bg-transparent w-32"
                 placeholder="0.00"
               />
-              <p className="text-xs text-gray-400">≈${(parseFloat(sellAmount || "0") * parseFloat(targetPrice)).toFixed(2)}</p>
+              <p className="text-xs text-gray-400">
+                ≈${(parseFloat(sellAmount || "0") * parseFloat(targetPrice)).toFixed(2)}
+              </p>
             </div>
             <div className="relative">
-            <div className="flex items-center space-x-2 p-1 rounded-md border border-red-500 cursor-pointer">
-  <Image src={newImage} width={20} height={20} alt="vector" className="w-5 h-5" />
-  <span className="font-semibold px-2">HBK</span>
-  <ChevronDown className="text-gray-500 w-4 h-4" />
-</div>
-
-              
-              <div className="absolute top-full left-0 mt-1 bg-white shadow-lg rounded-md w-32 hidden group-hover:block">
-                <ul className="text-sm text-gray-700 p-2 space-y-1">
-                  <li className="hover:bg-gray-200 p-2 rounded">Option 1</li>
-                  <li className="hover:bg-gray-200 p-2 rounded">Option 2</li>
-                </ul>
+              <div className="flex items-center space-x-2 p-1 rounded-md border border-red-500 cursor-pointer">
+                <Image
+                  src={newImage}
+                  width={20}
+                  height={20}
+                  alt="vector"
+                  className="w-5 h-5"
+                />
+                <span className="font-semibold px-2">HBK</span>
+                <ChevronDown className="text-gray-500 w-4 h-4" />
               </div>
             </div>
           </div>
@@ -330,19 +344,21 @@ export default function LimitComponent() {
                 className="text-xl font-semibold bg-transparent w-32"
                 placeholder="0.00"
               />
-              <p className="text-xs text-gray-400">≈${(parseFloat(buyAmount || "0") * parseFloat(targetPrice)).toFixed(2)}</p>
+              <p className="text-xs text-gray-400">
+                ≈${(parseFloat(buyAmount || "0") * parseFloat(targetPrice)).toFixed(2)}
+              </p>
             </div>
             <div className="relative">
-            <div className="flex items-center space-x-2 p-1 rounded-md border border-red-500 cursor-pointer">
-  <Image src={group} width={20} height={20} alt="vector" className="w-5 h-5" />
-  <span className="font-semibold px-2">QRN</span>
-  <ChevronDown className="text-gray-500 w-4 h-4" />
-</div>
-              <div className="absolute top-full left-0 mt-1 bg-white shadow-lg rounded-md w-32 hidden group-hover:block">
-                <ul className="text-sm text-gray-700 p-2 space-y-1">
-                  <li className="hover:bg-gray-200 p-2 rounded">Option A</li>
-                  <li className="hover:bg-gray-200 p-2 rounded">Option B</li>
-                </ul>
+              <div className="flex items-center space-x-2 p-1 rounded-md border border-red-500 cursor-pointer">
+                <Image
+                  src={group}
+                  width={20}
+                  height={20}
+                  alt="vector"
+                  className="w-5 h-5"
+                />
+                <span className="font-semibold px-2">QRN</span>
+                <ChevronDown className="text-gray-500 w-4 h-4" />
               </div>
             </div>
           </div>

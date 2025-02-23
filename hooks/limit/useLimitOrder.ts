@@ -1,4 +1,4 @@
-import { useState, useCallback } from 'react';
+import { useState, useCallback, useEffect } from 'react';
 import { ethers } from 'ethers';
 import SwapRouter02ExecutorABI from '@/lib/config/SwapRouter02Executor.json';
 import { useAccount, useChainId, useContractWrite } from 'wagmi';
@@ -15,14 +15,16 @@ export const useLimitOrder = () => {
 
   const ROUTER_ADDRESS = "0xeD3e638A3B7Fdba6a290cB1bc2572913fe841d71";
 
-  const {
-    write: createLimitOrder,
-    data: orderData,
-    isLoading: isOrderLoading,
-  } = useContractWrite({
+  const { write: createLimitOrder } = useContractWrite({
     address: ROUTER_ADDRESS as `0x${string}`,
     abi: SwapRouter02ExecutorABI.abi,
     functionName: 'execute',
+  });
+
+  const { write: cancelOrder } = useContractWrite({
+    address: ROUTER_ADDRESS as `0x${string}`,
+    abi: SwapRouter02ExecutorABI.abi,
+    functionName: 'cancelOrder', // Replace with your actual cancel function name
   });
 
   const submitLimitOrder = useCallback(
@@ -68,7 +70,7 @@ export const useLimitOrder = () => {
 
         const signature = await signOrder(order);
 
-        await createLimitOrder({
+        const tx = await createLimitOrder({
           args: [{
             order: ethers.utils.defaultAbiCoder.encode(
               ['tuple(tuple(address,address,uint256,uint256,address,bytes),tuple(address,uint256,uint256),tuple(address,uint256,address)[],bytes,bytes32)'],
@@ -78,10 +80,10 @@ export const useLimitOrder = () => {
           }, '0x']
         });
 
-        if (orderData?.hash) {
+        if (tx.hash) {
           setIsConfirming(true);
           await waitForTransaction({
-            hash: orderData.hash,
+            hash: tx.hash,
           });
           setIsConfirming(false);
         }
@@ -98,6 +100,39 @@ export const useLimitOrder = () => {
     [address, chainId, createLimitOrder]
   );
 
+  const cancelLimitOrder = useCallback(async (orderId: number) => {
+    if (!address) {
+      setError('Wallet not connected');
+      return;
+    }
+
+    try {
+      setIsLoading(true);
+      setError(null);
+
+      await cancelOrder({
+        args: [orderId], // Pass the order ID or nonce
+      });
+
+      // Handle transaction confirmation
+      if (cancelOrder.data?.hash) {
+        setIsConfirming(true);
+        await waitForTransaction({
+          hash: cancelOrder.data.hash,
+        });
+        setIsConfirming(false);
+      }
+
+      // Remove the order from the state
+      setOrders((prevOrders) => prevOrders.filter(order => order.info.nonce !== orderId));
+
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'Failed to cancel limit order');
+    } finally {
+      setIsLoading(false);
+    }
+  }, [address, cancelOrder]);
+
   const validateOrderParams = (params: LimitOrderParams) => {
     if (!params.tokenIn || !params.tokenOut) {
       throw new Error('Tokens must be specified.');
@@ -113,9 +148,21 @@ export const useLimitOrder = () => {
     }
   };
 
+  useEffect(() => {
+    const savedOrders = localStorage.getItem('limitOrders');
+    if (savedOrders) {
+      setOrders(JSON.parse(savedOrders));
+    }
+  }, []);
+
+  useEffect(() => {
+    localStorage.setItem('limitOrders', JSON.stringify(orders));
+  }, [orders]);
+
   return {
     submitLimitOrder,
-    isLoading: isLoading || isOrderLoading || isConfirming,
+    cancelLimitOrder,
+    isLoading: isLoading || isConfirming,
     error,
     orders,
   };
@@ -164,4 +211,4 @@ async function signOrder(order: any): Promise<string> {
 
   const signature = await signer._signTypedData(domain, types, order);
   return signature;
-} 
+}
