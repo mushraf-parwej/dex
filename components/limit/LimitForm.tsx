@@ -3,6 +3,8 @@
 import { ChevronDown } from "lucide-react";
 import { useState } from "react";
 import Image from "next/image";
+import { ethers } from 'ethers';
+import { useLimitOrder } from "@/hooks/limit/useLimitOrder";
 import eth from "@/public/assets/icons/eth.png.png";
 import group from "@/public/assets/icons/Group 1321316732.png";
 import vector from "@/public/assets/icons/Vector.png"
@@ -12,9 +14,56 @@ import newImage from "@/public/assets/icons/Shape.png"
 const options = ["1 day", "1 week", "1 Month", "1 Year"];
 const buttons = ["Market", "+1%", "+5%", "+10%"];
 
+const EXPIRY_MAPPING = {
+  "1 day": 24 * 60 * 60,
+  "1 week": 7 * 24 * 60 * 60,
+  "1 Month": 30 * 24 * 60 * 60,
+  "1 Year": 365 * 24 * 60 * 60,
+};
+
 export default function LimitComponent() {
   const [expiry, setExpiry] = useState("1 day");
   const [activeButton, setActiveButton] = useState(buttons[0]);
+  const [sellAmount, setSellAmount] = useState("");
+  const [buyAmount, setBuyAmount] = useState("");
+  const [targetPrice, setTargetPrice] = useState("3191.21"); // Your initial price
+
+  const { submitLimitOrder, isLoading, error } = useLimitOrder();
+
+  // Example token addresses - replace with actual addresses
+  const TOKEN_IN = "0xYourTokenInAddress";
+  const TOKEN_OUT = "0xYourTokenOutAddress";
+
+  const handleSubmit = async () => {
+    if (!sellAmount || !targetPrice) return;
+
+    const deadline = Math.floor(Date.now() / 1000) + EXPIRY_MAPPING[expiry];
+
+    await submitLimitOrder({
+      tokenIn: TOKEN_IN,
+      tokenOut: TOKEN_OUT,
+      amountIn: sellAmount,
+      targetPrice: targetPrice,
+      deadline: deadline,
+    });
+  };
+
+  const handlePriceAdjustment = (adjustment: string) => {
+    const basePrice = parseFloat(targetPrice);
+    switch (adjustment) {
+      case "+1%":
+        setTargetPrice((basePrice * 1.01).toFixed(2));
+        break;
+      case "+5%":
+        setTargetPrice((basePrice * 1.05).toFixed(2));
+        break;
+      case "+10%":
+        setTargetPrice((basePrice * 1.1).toFixed(2));
+        break;
+      default:
+        setTargetPrice("3191.21"); // Reset to market price
+    }
+  };
 
   return (
     <div
@@ -41,7 +90,14 @@ export default function LimitComponent() {
 
             </div>
             <div className="flex justify-between items-center">
-              <h2 className="text-2xl font-bold text-gray-900">3191.21</h2>
+              <h2 className="text-2xl font-bold text-gray-900">
+                <input
+                  type="number"
+                  value={targetPrice}
+                  onChange={(e) => setTargetPrice(e.target.value)}
+                  className="w-32 bg-transparent"
+                />
+              </h2>
               <div className="flex items-center space-x-2 p-1  cursor-pointer">
   <Image src={group} width={20} height={20} alt="vector" className="w-5 h-5" />
   <span className="font-semibold px-2">QRN</span>
@@ -70,8 +126,14 @@ export default function LimitComponent() {
           <div className="w-[480px] h-[116px] rounded-[6px] p-[16px] flex justify-between items-center bg-[#E0E0E04D]">
             <div>
               <p className="text-sm font-medium text-gray-600">Sell</p>
-              <p className="text-xl font-semibold">0.00</p>
-              <p className="text-xs text-gray-400">≈$0.00</p>
+              <input
+                type="number"
+                value={sellAmount}
+                onChange={(e) => setSellAmount(e.target.value)}
+                className="text-xl font-semibold bg-transparent w-32"
+                placeholder="0.00"
+              />
+              <p className="text-xs text-gray-400">≈${(parseFloat(sellAmount || "0") * parseFloat(targetPrice)).toFixed(2)}</p>
             </div>
             <div className="relative">
             <div className="flex items-center space-x-2 p-1 rounded-md border border-red-500 cursor-pointer">
@@ -92,8 +154,14 @@ export default function LimitComponent() {
           <div className="w-[480px] h-[116px] rounded-[6px] p-[16px] flex justify-between items-center bg-[#E0E0E04D] relative">
             <div>
               <p className="text-gray-500 text-sm">Buy</p>
-              <p className="text-xl font-semibold">0.00</p>
-              <p className="text-gray-400 text-xs">≈$0.00</p>
+              <input
+                type="number"
+                value={buyAmount}
+                onChange={(e) => setBuyAmount(e.target.value)}
+                className="text-xl font-semibold bg-transparent w-32"
+                placeholder="0.00"
+              />
+              <p className="text-xs text-gray-400">≈${(parseFloat(buyAmount || "0") * parseFloat(targetPrice)).toFixed(2)}</p>
             </div>
             <div className="relative">
             <div className="flex items-center space-x-2 p-1 rounded-md border border-red-500 cursor-pointer">
@@ -129,9 +197,21 @@ export default function LimitComponent() {
           ))}
         </div>
       </div>
-      <button className="w-[480px] text-gray-600 py-2 rounded-lg cursor-not-allowed bg-gray-300">
-        Confirm
+      <button
+        className={`w-[480px] py-2 rounded-lg ${
+          isLoading || !sellAmount
+            ? "cursor-not-allowed bg-gray-300 text-gray-600"
+            : "bg-red-500 text-white hover:bg-red-600"
+        }`}
+        onClick={handleSubmit}
+        disabled={isLoading || !sellAmount}
+      >
+        {isLoading ? "Processing..." : "Confirm Limit Order"}
       </button>
+
+      {error && (
+        <p className="text-red-500 text-sm text-center">{error}</p>
+      )}
     </div>
   );
 }

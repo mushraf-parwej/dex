@@ -1,11 +1,6 @@
-import type { Metadata } from "next";
-import localFont from "next/font/local";
 import "./globals.css";
-import { cookieToInitialState } from "wagmi";
-import { config } from "@/lib/config/wallet-config";
-import { headers } from "next/headers";
-import WagmiProviderComp from "@/providers/WagmiProvider";
-import { ThemeProvider } from "@/lib/utils/theme-provider";
+import type { Metadata } from "next";
+import Providers from "@/components/Providers";
 import Navbar from "@/components/common/Navbar";
 
 export const metadata: Metadata = {
@@ -18,24 +13,15 @@ export default function RootLayout({
 }: Readonly<{
   children: React.ReactNode;
 }>) {
-  const initialState = cookieToInitialState(config, headers().get("cookie"));
-
   return (
     <html lang="en">
       <body className="font-urbanist antialiased">
-        <ThemeProvider
-          attribute="class"
-          defaultTheme="light"
-          disableTransitionOnChange
-        >
-          <WagmiProviderComp initialState={initialState}>
-            <div className="">
-              <Navbar />
-
-              {children}
-            </div>
-          </WagmiProviderComp>
-        </ThemeProvider>
+        <Providers>
+          <div className="">
+            <Navbar />
+            {children}
+          </div>
+        </Providers>
       </body>
     </html>
   );
