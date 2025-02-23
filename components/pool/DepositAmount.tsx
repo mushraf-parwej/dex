@@ -143,7 +143,7 @@ const ERC20ABI = [
 // Example constants; adjust as needed
 const NONFUNGIBLE_POSITION_MANAGER_ADDRESS =
   "0xa2bcBce9B2727CAd75ec42bFf76a6d85DA129B9C";
-const chainId = 1; // or whichever chain you're on
+const chainId = 1;
 
 // You can change this fee to match the one chosen in CreatePool (e.g., 3000)
 const FEE_TIER = 3000;
