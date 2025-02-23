@@ -1,5 +1,7 @@
 import "./globals.css";
+import "./globals.css";
 import type { Metadata } from "next";
+import Providers from "@/components/Providers";
 import Providers from "@/components/Providers";
 import Navbar from "@/components/common/Navbar";
 import { StepProvider } from "@/context/StepContext";
@@ -17,20 +19,12 @@ export default function RootLayout({
   return (
     <html lang="en">
       <body className="font-urbanist antialiased">
-        <ThemeProvider
-          attribute="class"
-          forcedTheme="light"
-          disableTransitionOnChange
-        >
-          <WagmiProviderComp initialState={initialState}>
-            <div className="">
-              <StepProvider>
-                <Navbar />
-
-              {children}
-            </StepProvider>
+        <Providers>
+          <div className="">
+            <Navbar />
+            {children}
           </div>
-        </WagmiProviderComp>
+        </Providers>
       </body>
     </html>
   );

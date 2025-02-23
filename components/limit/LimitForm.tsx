@@ -174,8 +174,9 @@
 import { ChevronDown } from "lucide-react";
 import { useState, useCallback } from "react";
 import Image from "next/image";
-import { AnimatePresence, motion } from "framer-motion";
-import eth from "@/public/assets/icons/eth.png";
+import { ethers } from 'ethers';
+import { useLimitOrder } from "@/hooks/limit/useLimitOrder";
+import eth from "@/public/assets/icons/eth.png.png";
 import group from "@/public/assets/icons/Group 1321316732.png";
 import { TokenInput } from "../web3/swap/TokenInput";
 import { SwapButton } from "../web3/swap/SwapButton";
@@ -188,133 +189,56 @@ import { Input } from "../ui/input";
 const options = ["1 day", "1 week", "1 Month", "1 Year"];
 const buttons = ["Market", "+1%", "+5%", "+10%"];
 
-// Your deployed contract address for Dutch orders
-const DUTCH_ORDER_REACTOR_ADDRESS =
-  "0x453C0545a2B8AA9DEb8A552b33A74b75f4DFD8D2";
-
-// Map expiry options to durations in seconds
-const expiryDurations: Record<string, number> = {
-  "1 day": 86400,
-  "1 week": 604800,
-  "1 Month": 2592000,
-  "1 Year": 31536000,
+const EXPIRY_MAPPING = {
+  "1 day": 24 * 60 * 60,
+  "1 week": 7 * 24 * 60 * 60,
+  "1 Month": 30 * 24 * 60 * 60,
+  "1 Year": 365 * 24 * 60 * 60,
 };
 
 export default function LimitComponent() {
   const [expiry, setExpiry] = useState("1 day");
   const [activeButton, setActiveButton] = useState(buttons[0]);
-  const { isConnected, address } = useAccount();
-  const { coin1, coin2 } = useCoinStore();
+  const [sellAmount, setSellAmount] = useState("");
+  const [buyAmount, setBuyAmount] = useState("");
+  const [targetPrice, setTargetPrice] = useState("3191.21"); // Your initial price
 
-  // Local component states for transitioning views
-  const [isSubmitted, setIsSubmitted] = useState<boolean>(false);
-  const [showConfirmation, setShowConfirmation] = useState<boolean>(false);
-  const [formData, setFormData] = useState<{
-    sellAmount: string;
-    buyAmount: string;
-    coin1: string;
-    coin2: string;
-  } | null>(null);
-  const [error, setError] = useState<string | null>(null);
+  const { submitLimitOrder, isLoading, error } = useLimitOrder();
 
-  const {
-    sellAmount,
-    buyAmount,
-    handleSellAmountChange,
-    handleBuyAmountChange,
-    handleSwap,
-  } = useSwap();
+  // Example token addresses - replace with actual addresses
+  const TOKEN_IN = "0xYourTokenInAddress";
+  const TOKEN_OUT = "0xYourTokenOutAddress";
 
-  const isFormValid = Boolean(
-    sellAmount &&
-      buyAmount &&
-      coin1 &&
-      coin2 &&
-      Number(sellAmount) > 0 &&
-      Number(buyAmount) > 0 &&
-      address
-  );
+  const handleSubmit = async () => {
+    if (!sellAmount || !targetPrice) return;
 
-  const handleSubmit = useCallback(
-    async (e: React.FormEvent) => {
-      e.preventDefault();
-      if (!isFormValid) {
-        setError("Please ensure all fields are filled correctly.");
-        return;
-      }
-      setError(null);
+    const deadline = Math.floor(Date.now() / 1000) + EXPIRY_MAPPING[expiry];
 
-      try {
-        // Check for window.ethereum (MetaMask)
-        if (!window.ethereum) {
-          throw new Error("Please install MetaMask!");
-        }
-        // Fetch provider and signer as in your CreatePool component
-        const provider = new ethers.BrowserProvider(window.ethereum);
-        const signer = await provider.getSigner();
+    await submitLimitOrder({
+      tokenIn: TOKEN_IN,
+      tokenOut: TOKEN_OUT,
+      amountIn: sellAmount,
+      targetPrice: targetPrice,
+      deadline: deadline,
+    });
+  };
 
-        // Calculate deadline based on expiry option
-        const now = Math.floor(Date.now() / 1000);
-        const expirySeconds = expiryDurations[expiry];
-        const deadline = now + expirySeconds;
-
-        const chainId = 11155111;
-        const nonceMgr = new NonceManager(provider, 1);
-        const nonce = await nonceMgr.useNonce(address);
-
-        // Build the Dutch order using the SDK
-        const builder = new DutchOrderBuilder(chainId);
-        const order = builder
-          .deadline(deadline)
-          .decayStartTime(deadline - 100) // example value; adjust as needed
-          .decayEndTime(deadline)
-          .nonce(nonce)
-          .input({
-            token: String(coin1),
-            amount: BigInt(sellAmount),
-          })
-          .output({
-            token: String(coin2),
-            startAmount: BigInt(buyAmount),
-            endAmount: BigInt(buyAmount),
-            recipient: address,
-          })
-          .build();
-
-        // Get EIP-712 permit data for signing
-        const { domain, types, values } = order.permitData();
-        const signature = await signer._signTypedData(domain, types, values);
-
-        // Serialize the order into an ABI-encoded string
-        const serializedOrder = order.serialize();
-
-        // Create an instance of the DutchOrderReactor contract
-        const dutchOrderReactor = new ethers.Contract(
-          DUTCH_ORDER_REACTOR_ADDRESS,
-          dutchOrderReactorAbi,
-          signer
-        );
-        // const tx = await dutchOrderReactor.(
-        //   serializedOrder,
-        //   signature
-        // );
-        // await tx.wait();
-
-        setFormData({
-          sellAmount,
-          buyAmount,
-          coin1: String(coin1),
-          coin2: String(coin2),
-        });
-        setShowConfirmation(true);
-        setIsSubmitted(true);
-      } catch (err: any) {
-        console.error(err);
-        setError(err.message || "Order submission failed");
-      }
-    },
-    [isFormValid, expiry, sellAmount, buyAmount, coin1, coin2, address]
-  );
+  const handlePriceAdjustment = (adjustment: string) => {
+    const basePrice = parseFloat(targetPrice);
+    switch (adjustment) {
+      case "+1%":
+        setTargetPrice((basePrice * 1.01).toFixed(2));
+        break;
+      case "+5%":
+        setTargetPrice((basePrice * 1.05).toFixed(2));
+        break;
+      case "+10%":
+        setTargetPrice((basePrice * 1.1).toFixed(2));
+        break;
+      default:
+        setTargetPrice("3191.21"); // Reset to market price
+    }
+  };
 
   return (
     <main className="md:min-w-[480px] w-full min-h-[420px]  z-30 mx-auto p-6">
@@ -336,12 +260,19 @@ export default function LimitComponent() {
               )}
             </div>
             <div className="flex justify-between items-center">
-              <Input
-                disabled={!(coin1 && coin2)}
-                className="focus:outline-none  text-lg"
-                placeholder="0.00"
-              />
-              <div className="flex items-center space-x-2 p-1 cursor-pointer"></div>
+              <h2 className="text-2xl font-bold text-gray-900">
+                <input
+                  type="number"
+                  value={targetPrice}
+                  onChange={(e) => setTargetPrice(e.target.value)}
+                  className="w-32 bg-transparent"
+                />
+              </h2>
+              <div className="flex items-center space-x-2 p-1  cursor-pointer">
+  <Image src={group} width={20} height={20} alt="vector" className="w-5 h-5" />
+  <span className="font-semibold px-2">QRN</span>
+ 
+</div>
             </div>
           </div>
           <div className="flex gap-2 mt-3">
@@ -360,120 +291,97 @@ export default function LimitComponent() {
             ))}
           </div>
         </div>
+        <div className="space-y-4 relative">
+          <div className="w-[480px] h-[116px] rounded-[6px] p-[16px] flex justify-between items-center bg-[#E0E0E04D]">
+            <div>
+              <p className="text-sm font-medium text-gray-600">Sell</p>
+              <input
+                type="number"
+                value={sellAmount}
+                onChange={(e) => setSellAmount(e.target.value)}
+                className="text-xl font-semibold bg-transparent w-32"
+                placeholder="0.00"
+              />
+              <p className="text-xs text-gray-400">≈${(parseFloat(sellAmount || "0") * parseFloat(targetPrice)).toFixed(2)}</p>
+            </div>
+            <div className="relative">
+            <div className="flex items-center space-x-2 p-1 rounded-md border border-red-500 cursor-pointer">
+  <Image src={newImage} width={20} height={20} alt="vector" className="w-5 h-5" />
+  <span className="font-semibold px-2">HBK</span>
+  <ChevronDown className="text-gray-500 w-4 h-4" />
+</div>
 
-        <AnimatePresence mode="wait">
-          {isSubmitted ? (
-            <motion.div
-              key="progress"
-              initial={{ opacity: 0, x: 20 }}
-              animate={{ opacity: 1, x: 0 }}
-              exit={{ opacity: 0, x: -20 }}
-              transition={{ duration: 0.2 }}
-            >
-              {/* Limit Order Progress State */}
-              <div className="p-4 text-center">
-                <p className="text-lg font-semibold">Limit Order Submitted</p>
-                <button
-                  onClick={() => {
-                    setIsSubmitted(false);
-                    setShowConfirmation(false);
-                  }}
-                  className="mt-2 text-blue-500 underline"
-                >
-                  Go Back
-                </button>
+              
+              <div className="absolute top-full left-0 mt-1 bg-white shadow-lg rounded-md w-32 hidden group-hover:block">
+                <ul className="text-sm text-gray-700 p-2 space-y-1">
+                  <li className="hover:bg-gray-200 p-2 rounded">Option 1</li>
+                  <li className="hover:bg-gray-200 p-2 rounded">Option 2</li>
+                </ul>
               </div>
-            </motion.div>
-          ) : showConfirmation ? (
-            <motion.div
-              key="confirmation"
-              initial={{ opacity: 0, x: 20 }}
-              animate={{ opacity: 1, x: 0 }}
-              exit={{ opacity: 0, x: -20 }}
-              transition={{ duration: 0.2 }}
-            >
-              <div className="p-4 text-center">
-                <p className="text-lg font-semibold">Confirm Limit Order</p>
-                <div className="flex justify-center gap-4 mt-2">
-                  <button
-                    onClick={() => setShowConfirmation(false)}
-                    className="text-red-500 underline"
-                  >
-                    Back
-                  </button>
-                  <button
-                    onClick={() => setIsSubmitted(true)}
-                    className="text-green-500 underline"
-                  >
-                    Confirm
-                  </button>
-                </div>
+            </div>
+          </div>
+          <div className="w-[480px] h-[116px] rounded-[6px] p-[16px] flex justify-between items-center bg-[#E0E0E04D] relative">
+            <div>
+              <p className="text-gray-500 text-sm">Buy</p>
+              <input
+                type="number"
+                value={buyAmount}
+                onChange={(e) => setBuyAmount(e.target.value)}
+                className="text-xl font-semibold bg-transparent w-32"
+                placeholder="0.00"
+              />
+              <p className="text-xs text-gray-400">≈${(parseFloat(buyAmount || "0") * parseFloat(targetPrice)).toFixed(2)}</p>
+            </div>
+            <div className="relative">
+            <div className="flex items-center space-x-2 p-1 rounded-md border border-red-500 cursor-pointer">
+  <Image src={group} width={20} height={20} alt="vector" className="w-5 h-5" />
+  <span className="font-semibold px-2">QRN</span>
+  <ChevronDown className="text-gray-500 w-4 h-4" />
+</div>
+              <div className="absolute top-full left-0 mt-1 bg-white shadow-lg rounded-md w-32 hidden group-hover:block">
+                <ul className="text-sm text-gray-700 p-2 space-y-1">
+                  <li className="hover:bg-gray-200 p-2 rounded">Option A</li>
+                  <li className="hover:bg-gray-200 p-2 rounded">Option B</li>
+                </ul>
               </div>
-            </motion.div>
-          ) : (
-            <motion.div
-              key="form"
-              initial={{ opacity: 0, x: -20 }}
-              animate={{ opacity: 1, x: 0 }}
-              exit={{ opacity: 0, x: 20 }}
-              transition={{ duration: 0.2 }}
+            </div>
+          </div>
+        </div>
+      </div>
+      <div className="w-[480px] flex justify-between p-3 rounded-lg mt-1">
+        <p className="text-gray-500 text-md">Expiry</p>
+        <div className="flex gap-1">
+          {options.map((option) => (
+            <button
+              key={option}
+              className={`px-3 py-1 rounded-lg text-sm font-semibold ${
+                expiry === option
+                  ? "bg-[#FFF7F7] text-red-500 border border-[#CE192D66]"
+                  : "text-gray-900"
+              }`}
+              onClick={() => setExpiry(option)}
             >
-              <form onSubmit={handleSubmit} className="space-y-5 relative">
-                <div className="flex flex-col relative gap-2">
-                  <TokenInput
-                    label="Sell"
-                    amount={sellAmount}
-                    onChange={handleSellAmountChange}
-                    coinType="coin1"
-                    coinSelect={true}
-                  />
-                  <div className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 p-1 z-20">
-                    <SwapButton onSwap={handleSwap} />
-                  </div>
-                  <TokenInput
-                    label="Buy"
-                    amount={buyAmount}
-                    onChange={handleBuyAmountChange}
-                    coinType="coin2"
-                    coinSelect={true}
-                  />
-                </div>
-                {error && (
-                  <div className="text-red-500 text-sm mt-2" role="alert">
-                    {error}
-                  </div>
-                )}
-              </form>
-              <div className="flex justify-between p-3 rounded-lg mt-10">
-                <p className="text-gray-500 text-md">Expiry</p>
-                <div className="flex gap-1">
-                  {options.map((option) => (
-                    <button
-                      key={option}
-                      onClick={() => setExpiry(option)}
-                      className={`px-3 py-1 rounded-lg text-sm font-semibold ${
-                        expiry === option
-                          ? "bg-[#FFF7F7] text-red-500 border border-[#CE192D66]"
-                          : "text-gray-900"
-                      }`}
-                    >
-                      {option}
-                    </button>
-                  ))}
-                </div>
-              </div>
-              {/* Confirm Button */}
-              <button
-                onClick={handleSubmit}
-                className="w-full text-gray-600 py-2 rounded-lg cursor-pointer bg-gray-300"
-              >
-                Confirm
-              </button>
-            </motion.div>
-          )}
-        </AnimatePresence>
-      </Card>
-    </main>
+              {option}
+            </button>
+          ))}
+        </div>
+      </div>
+      <button
+        className={`w-[480px] py-2 rounded-lg ${
+          isLoading || !sellAmount
+            ? "cursor-not-allowed bg-gray-300 text-gray-600"
+            : "bg-red-500 text-white hover:bg-red-600"
+        }`}
+        onClick={handleSubmit}
+        disabled={isLoading || !sellAmount}
+      >
+        {isLoading ? "Processing..." : "Confirm Limit Order"}
+      </button>
+
+      {error && (
+        <p className="text-red-500 text-sm text-center">{error}</p>
+      )}
+    </div>
   );
 }
 
