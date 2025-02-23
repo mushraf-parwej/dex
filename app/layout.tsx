@@ -26,7 +26,7 @@ export default function RootLayout({
       <body className="font-urbanist antialiased">
         <ThemeProvider
           attribute="class"
-          defaultTheme="light"
+          forcedTheme="light"
           disableTransitionOnChange
         >
           <WagmiProviderComp initialState={initialState}>
