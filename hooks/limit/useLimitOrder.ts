@@ -113,8 +113,48 @@ export const useLimitOrder = () => {
     }
   };
 
+  const cancelLimitOrder = useCallback(async (orderId: number) => {
+    if (!address) {
+      setError('Wallet not connected');
+      return;
+    }
+
+    try {
+      setIsLoading(true);
+      setError(null);
+
+      // Call the cancel function on your smart contract
+      const cancelOrder = useContractWrite({
+        address: ROUTER_ADDRESS as `0x${string}`,
+        abi: SwapRouter02ExecutorABI.abi,
+        functionName: 'cancelOrder', // Replace with your actual cancel function name
+        args: [orderId], // Pass the order ID or nonce
+      });
+
+      await cancelOrder.writeAsync(); // Call the cancel function
+
+      // Handle transaction confirmation
+      if (cancelOrder.data?.hash) {
+        setIsConfirming(true);
+        await waitForTransaction({
+          hash: cancelOrder.data.hash,
+        });
+        setIsConfirming(false);
+      }
+
+      // Remove the order from the state
+      setOrders((prevOrders) => prevOrders.filter(order => order.info.nonce !== orderId));
+
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'Failed to cancel limit order');
+    } finally {
+      setIsLoading(false);
+    }
+  }, [address]);
+
   return {
     submitLimitOrder,
+    cancelLimitOrder,
     isLoading: isLoading || isOrderLoading || isConfirming,
     error,
     orders,
