@@ -6,6 +6,7 @@ import { poolData } from "@/constants/tvlData";
 
 export interface TopPool {
   pool: string;
+  fees:string;
   tvl: string;
   apr: string;
   vol1d: string;
@@ -20,6 +21,7 @@ const TopPoolTable = () => {
         <thead>
           <tr className="bg-gray-200">
             <th className="px-4 py-2 border">Pool</th>
+            <th className="px-4 py-2 border">Fees</th>
             <th className="px-4 py-2 border">TVL</th>
             <th className="px-4 py-2 border">APR</th>
             <th className="px-4 py-2 border">1d vol</th>
@@ -31,6 +33,7 @@ const TopPoolTable = () => {
           {poolData.map((item: TopPool, idx: number) => (
             <tr key={idx} className="text-center">
               <td className="px-4 py-2 border">{item.pool}</td>
+              <td className="px-4 py-2 border">{item.fees}</td>
               <td className="px-4 py-2 border">{item.tvl}</td>
               <td className="px-4 py-2 border">{item.apr}</td>
               <td className="px-4 py-2 border">{item.vol1d}</td>

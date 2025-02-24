@@ -7,7 +7,7 @@ interface IconButtonProps {
 }
 
 const IconButton = ({ src, alt }: IconButtonProps) => (
-  <button className="p-2 rounded-lg border hover:bg-neutral-900 transition-colors">
+  <button className="p-2 rounded-lg border hover:bg-gray-200 transition-colors">
     <Image src={src || "/placeholder.svg"} alt={alt} width={24} height={24} />
   </button>
 );

@@ -1,6 +1,7 @@
 export const poolData = [
   {
     pool: "Pool A",
+    fees:"0.01%",
     tvl: "$1,000,000",
     apr: "15%",
     vol1d: "$50,000",
@@ -9,6 +10,7 @@ export const poolData = [
   },
   {
     pool: "Pool B",
+    fees:"0.30%",
     tvl: "$2,500,000",
     apr: "12%",
     vol1d: "$80,000",
@@ -17,6 +19,7 @@ export const poolData = [
   },
   {
     pool: "Pool C",
+    fees:"0.15%",
     tvl: "$750,000",
     apr: "18%",
     vol1d: "$40,000",
@@ -25,6 +28,7 @@ export const poolData = [
   },
   {
     pool: "Pool D",
+    fees:"0.03%",
     tvl: "$3,200,000",
     apr: "10%",
     vol1d: "$90,000",
@@ -33,6 +37,7 @@ export const poolData = [
   },
   {
     pool: "Pool E",
+    fees:"0.08%",
     tvl: "$1,800,000",
     apr: "14%",
     vol1d: "$60,000",
@@ -41,6 +46,7 @@ export const poolData = [
   },
   {
     pool: "Pool F",
+    fees:"0.05%",
     tvl: "$950,000",
     apr: "16%",
     vol1d: "$45,000",
@@ -49,6 +55,7 @@ export const poolData = [
   },
   {
     pool: "Pool G",
+    fees:"0.01%",
     tvl: "$2,200,000",
     apr: "11%",
     vol1d: "$70,000",
@@ -57,6 +64,7 @@ export const poolData = [
   },
   {
     pool: "Pool H",
+    fees:"0.24%",
     tvl: "$1,100,000",
     apr: "13%",
     vol1d: "$55,000",
@@ -65,6 +73,7 @@ export const poolData = [
   },
   {
     pool: "Pool I",
+    fees:"0.11%",
     tvl: "$3,000,000",
     apr: "9%",
     vol1d: "$85,000",
@@ -73,6 +82,7 @@ export const poolData = [
   },
   {
     pool: "Pool J",
+    fees:"0.05%",
     tvl: "$850,000",
     apr: "17%",
     vol1d: "$35,000",
