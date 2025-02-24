@@ -25,6 +25,7 @@ const TopPoolTable = () => {
             <th className="px-4 py-2 border">1d vol</th>
             <th className="px-4 py-2 border">30d vol</th>
             <th className="px-4 py-2 border">1d vol/tvl</th>
+            <th className="px-4 py-2 border">fees</th>
           </tr>
         </thead>
         <tbody>
