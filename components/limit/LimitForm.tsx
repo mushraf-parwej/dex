@@ -183,6 +183,7 @@ import { useAccount } from "wagmi";
 import { useSwap } from "@/hooks/swap/useSwap";
 import { useCoinStore } from "@/store";
 import { Card } from "@/components/ui/card"; // Adjust path as needed
+import { Input } from "../ui/input";
 
 const options = ["1 day", "1 week", "1 Month", "1 Year"];
 const buttons = ["Market", "+1%", "+5%", "+10%"];
@@ -321,31 +322,26 @@ export default function LimitComponent() {
         <div className="w-full rounded-xl p-4 bg-[#E0E0E04D]">
           <div className="flex flex-col gap-2">
             <div className="flex justify-between items-center">
-              <div className="flex items-center gap-1">
-                <span className="text-gray-500 text-sm">When 1</span>
-                <Image
-                  src={eth}
-                  width={10}
-                  height={10}
-                  alt="ETH Icon"
-                  className="w-4 h-4"
-                />
-                <span className="text-gray-500 text-sm font-bold">ETH</span>
-                <span className="text-gray-500 text-sm">is worth</span>
-              </div>
+              {/* <div>Limit Price</div> */}
+              {coin1 && coin2 ? (
+                <div>
+                  <span className="text-sm text-neutral-700">When 1 </span>
+                  <span className="font-semibold text-neutral-800">
+                    {coin1.symbol}{" "}
+                    <span className="font-normal "> is worth</span>
+                  </span>
+                </div>
+              ) : (
+                <div>Limit Price</div>
+              )}
             </div>
             <div className="flex justify-between items-center">
-              <h2 className="text-2xl font-bold text-gray-900">3191.21</h2>
-              <div className="flex items-center space-x-2 p-1 cursor-pointer">
-                <Image
-                  src={group}
-                  width={20}
-                  height={20}
-                  alt="QRN Icon"
-                  className="w-5 h-5"
-                />
-                <span className="font-semibold px-2">QRN</span>
-              </div>
+              <Input
+                disabled={!(coin1 && coin2)}
+                className="focus:outline-none  text-lg"
+                placeholder="0.00"
+              />
+              <div className="flex items-center space-x-2 p-1 cursor-pointer"></div>
             </div>
           </div>
           <div className="flex gap-2 mt-3">
@@ -376,9 +372,7 @@ export default function LimitComponent() {
             >
               {/* Limit Order Progress State */}
               <div className="p-4 text-center">
-                <p className="text-lg font-semibold">
-                  Limit Order Submitted
-                </p>
+                <p className="text-lg font-semibold">Limit Order Submitted</p>
                 <button
                   onClick={() => {
                     setIsSubmitted(false);
@@ -399,9 +393,7 @@ export default function LimitComponent() {
               transition={{ duration: 0.2 }}
             >
               <div className="p-4 text-center">
-                <p className="text-lg font-semibold">
-                  Confirm Limit Order
-                </p>
+                <p className="text-lg font-semibold">Confirm Limit Order</p>
                 <div className="flex justify-center gap-4 mt-2">
                   <button
                     onClick={() => setShowConfirmation(false)}
