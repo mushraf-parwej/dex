@@ -38,7 +38,7 @@ const DepositAmount = () => {
   return (
     <main className="p-6">
       {/* Header with coin names and an Edit button */}
-      <section className="flex flex-row items-center justify-between w-full border">
+      <section className="p-5 rounded-[13px] flex flex-row items-center justify-between w-full border">
         <div className="flex flex-row items-center space-x-2">
           <span>{coin1.name}</span>
           <span>/</span>
