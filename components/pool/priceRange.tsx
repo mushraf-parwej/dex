@@ -130,7 +130,7 @@ export default function PriceRange() {
   };
 
   return (
-    <main className="flex flex-col w-full space-y-10">
+    <main className="flex flex-col w-full space-y-10 p-5">
       <section className="p-5 rounded-[13px] w-full border flex flex-row space-x-5 justify-between">
         <div>
           <span>{coin1.name}</span>
@@ -143,10 +143,10 @@ export default function PriceRange() {
         />
       </section>
 
-      <section className="w-full flex flex-col space-y-10 p-5 border rounded-[13px]">
-        <div className="flex flex-row justify-between items-center">
-          <div>
-            <span>Set Price Range</span>
+      <section className="w-full flex flex-col space-y-10 p-4 border rounded-[13px]">
+        <div className="flex md:flex-row flex-col justify-between items-center">
+          <div className="flex flex-row items-start">
+            <span className="md:text-base text-sm">Set Price Range</span>
           </div>
           <div>
             <Tabs defaultValue={coin1.name}>

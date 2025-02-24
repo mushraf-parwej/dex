@@ -1,19 +1,12 @@
 import StepPool from "@/components/pool/stepPool";
-import Link from "next/link";
 import React from "react";
-import TopPoolTable from "../TopPoolTable";
 
-const page = () => {
+const Page = () => {
   return (
-    <main className="flex flex-row w-full justify-center items-start p-10">
-      <div>
-        <Link href="/pool">Back</Link>
-      </div>
-      <div className="w-2/3">
-        <StepPool />
-      </div>
+    <main className="flex flex-col md:flex-row w-full justify-center items-center p-4 md:p-10">
+      <StepPool />
     </main>
   );
 };
 
-export default page;
+export default Page;
