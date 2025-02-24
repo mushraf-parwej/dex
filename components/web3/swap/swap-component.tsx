@@ -215,6 +215,7 @@ const SwapComponent: FC = () => {
                     amount={sellAmount}
                     onChange={handleSellAmountChange}
                     coinType="coin1"
+                    coinSelect={true}
                   />
                   <div className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 p-1 z-20">
                     <SwapButton onSwap={handleSwap} />
@@ -224,6 +225,7 @@ const SwapComponent: FC = () => {
                     amount={buyAmount}
                     onChange={handleBuyAmountChange}
                     coinType="coin2"
+                    coinSelect={true}
                   />
                 </div>
                 <Accordion type="single" collapsible>

@@ -33,12 +33,14 @@ const StepPool = () => {
   console.log(currentStep);
 
   return (
-    <div className="w-full flex flex-row items-start p-6 space-x-10 justify-between px-20">
+    <div className="md:w-full max-w-6xl flex flex-row items-start md:p-6 p-2 md:space-x-10 md:justify-between justify-center md:px-20">
       {/* Step indicator */}
-      <div className="flex flex-col gap-6 rounded-lg w-1/2 border p-5">
+      <div className="md:flex hidden flex-col gap-6 rounded-lg w-1/2 border p-5">
         {steps.map((step, index) => (
           <motion.div
-            onClick={() => (currentStep > index ? setCurrentStep(index) : null)}
+            onClick={() =>
+              currentStep > index ? setCurrentStep(index + 1) : null
+            }
             key={index}
             variants={stepVariants}
             initial="initial"
@@ -61,7 +63,7 @@ const StepPool = () => {
       </div>
 
       {/* Step content */}
-      <div className="mt-8 w-full">
+      <div className=" w-full ">
         {currentStep === 1 && <CreatePool />}
         {currentStep === 2 && <PriceRange />}
         {currentStep === 3 && <DepositAmount />}
