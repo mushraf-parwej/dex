@@ -316,7 +316,7 @@ export default function LimitComponent() {
   );
 
   return (
-    <main className="min-w-[480px] md:min-w-[580px] w-full min-h-[420px] z-30 mx-auto p-6">
+    <main className="md:min-w-[480px] w-full min-h-[420px]  z-30 mx-auto p-6">
       <Card className="flex flex-col border backdrop-blur-lg rounded-xl p-4 gap-6 shadow-lg">
         <div className="w-full rounded-xl p-4 bg-[#E0E0E04D]">
           <div className="flex flex-col gap-2">
@@ -433,6 +433,7 @@ export default function LimitComponent() {
                     amount={sellAmount}
                     onChange={handleSellAmountChange}
                     coinType="coin1"
+                    coinSelect={true}
                   />
                   <div className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 p-1 z-20">
                     <SwapButton onSwap={handleSwap} />
@@ -442,6 +443,7 @@ export default function LimitComponent() {
                     amount={buyAmount}
                     onChange={handleBuyAmountChange}
                     coinType="coin2"
+                    coinSelect={true}
                   />
                 </div>
                 {error && (
