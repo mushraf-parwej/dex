@@ -296,13 +296,11 @@ export default function LimitComponent() {
           dutchOrderReactorAbi,
           signer
         );
-
-        // Submit the order (the contract decodes, validates, and queues the order)
-        const tx = await dutchOrderReactor.(
-          serializedOrder,
-          signature
-        );
-        await tx.wait();
+        // const tx = await dutchOrderReactor.(
+        //   serializedOrder,
+        //   signature
+        // );
+        // await tx.wait();
 
         setFormData({
           sellAmount,

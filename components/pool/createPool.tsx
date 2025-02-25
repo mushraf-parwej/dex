@@ -151,6 +151,7 @@ const CreatePool = () => {
 
             if (matchedPool) {
               setPoolAddress(matchedPool.poolAddress);
+              localStorage.setItem("poolAddress", matchedPool.poolAddress);
             } else {
               setPoolAddress("");
             }
