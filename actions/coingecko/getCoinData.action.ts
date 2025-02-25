@@ -2,7 +2,9 @@
 
 export const getCoinData = async () => {
   try {
-    const res = await fetch("http://localhost:3000/api/coingecko/fetchcoins");
+    const res = await fetch(
+      `${process.env.NEXT_PUBLIC_BASE_URL}/api/coingecko/fetchcoins`
+    );
 
     // Check if the response is OK (status code 200-299)
     if (!res.ok) {
@@ -24,7 +26,7 @@ export const getCoinPrice = async (coinName: string) => {
   console.log("coin name is ", coinName);
   try {
     const res = await fetch(
-      `http://localhost:3000/api/coingecko/currencyconvert?ids=${coinName}`,
+      `${process.env.NEXT_PUBLIC_BASE_URL}/api/coingecko/currencyconvert?ids=${coinName}`,
       {
         cache: "no-store",
       }
