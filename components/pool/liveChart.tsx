@@ -30,8 +30,8 @@ export default function LivePriceChart() {
       <CardHeader>
         <CardTitle>Live Price Chart</CardTitle>
       </CardHeader>
-      <CardContent>
-        <LineChart width={600} height={300} data={data}>
+      <CardContent className="flex justify-center">
+        <LineChart width={300} height={200} data={data}>
           <CartesianGrid strokeDasharray="3 3" />
           <XAxis
             dataKey="time"

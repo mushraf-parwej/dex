@@ -298,20 +298,33 @@ const CreatePool = () => {
   };
 
   return (
-    <div className="max-w-md mx-auto p-6 rounded-lg border">
+    <div className=" p-3  md:p-6 w-full   rounded-lg border">
       {currentStep === 1 && (
         <div className="flex flex-col space-y-5">
           <div>
             <h2 className="text-xl font-semibold mb-4 text-black">
               Select Pair
             </h2>
-            <p>
+            <p className="text-sm text-neutral-400">
               Choose the tokens you want to provide liquidity for. You can
               select tokens on all supported networks.
             </p>
           </div>
-
-          <div className="flex flex-row items-center justify-between w-full">
+          {/* <input
+            type="text"
+            placeholder="Token 0 Address"
+            value={token0}
+            onChange={(e) => setToken0(e.target.value)}
+            className="w-full p-2 mb-2 border rounded"
+          />
+          <input
+            type="text"
+            placeholder="Token 1 Address"
+            value={token1}
+            onChange={(e) => setToken1(e.target.value)}
+            className="w-full p-2 mb-2 border rounded"
+          /> */}
+          <div className="flex flex-row items-center justify-between space-x-2 w-full">
             <CoinSelect coinType="coin1" />
             <CoinSelect coinType="coin2" />
           </div>

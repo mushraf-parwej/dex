@@ -171,8 +171,10 @@
 // }
 "use client";
 
+import { ChevronDown } from "lucide-react";
 import { useState, useCallback } from "react";
 import Image from "next/image";
+import { AnimatePresence, motion } from "framer-motion";
 import eth from "@/public/assets/icons/eth.png";
 import group from "@/public/assets/icons/Group 1321316732.png";
 import { TokenInput } from "../web3/swap/TokenInput";
@@ -180,6 +182,8 @@ import { SwapButton } from "../web3/swap/SwapButton";
 import { useAccount } from "wagmi";
 import { useSwap } from "@/hooks/swap/useSwap";
 import { useCoinStore } from "@/store";
+import { Card } from "@/components/ui/card"; // Adjust path as needed
+import { Input } from "../ui/input";
 import dutchOrderReactorAbi from "../../lib/config/dutchOrderReactorAbi.json";
 // Import ethers and the UniswapX SDK components
 import { ethers } from "ethers";
@@ -206,7 +210,7 @@ export default function LimitComponent() {
   const { isConnected, address } = useAccount();
   const { coin1, coin2 } = useCoinStore();
 
-  // Local component state
+  // Local component states for transitioning views
   const [isSubmitted, setIsSubmitted] = useState<boolean>(false);
   const [showConfirmation, setShowConfirmation] = useState<boolean>(false);
   const [formData, setFormData] = useState<{
@@ -225,7 +229,6 @@ export default function LimitComponent() {
     handleSwap,
   } = useSwap();
 
-  // Validate the form data
   const isFormValid = Boolean(
     sellAmount &&
       buyAmount &&
@@ -319,39 +322,34 @@ export default function LimitComponent() {
   );
 
   return (
-    <div className="font-urbanist absolute top-[75%] left-[50%] transform -translate-x-[50%] -translate-y-[50%] w-[512px] max-w-[512px] rounded-[10px] border border-white/[0.1] shadow-lg p-4 flex flex-col gap-4 text-justify">
-      <div className="w-[480px] h-[381px] rounded-[10px] flex flex-col gap-4 bg-[#F8F9FA]">
-        <div className="w-[480px] h-[133px] rounded-[10px] p-4 bg-[#E0E0E04D]">
-          <div className="flex flex-col gap-[10px]">
+    <main className="md:min-w-[480px] w-full min-h-[420px]  z-30 mx-auto p-6">
+      <Card className="flex flex-col border backdrop-blur-lg rounded-xl p-4 gap-6 shadow-lg">
+        <div className="w-full rounded-xl p-4 bg-[#E0E0E04D]">
+          <div className="flex flex-col gap-2">
             <div className="flex justify-between items-center">
-              <div className="flex items-center gap-1">
-                <span className="text-gray-500 text-sm">When 1</span>
-                <Image
-                  src={eth}
-                  width={10}
-                  height={10}
-                  alt="ETH Icon"
-                  className="w-4 h-4"
-                />
-                <span className="text-gray-500 text-sm font-bold">ETH</span>
-                <span className="text-gray-500 text-sm">is worth</span>
-              </div>
+              {/* <div>Limit Price</div> */}
+              {coin1 && coin2 ? (
+                <div>
+                  <span className="text-sm text-neutral-700">When 1 </span>
+                  <span className="font-semibold text-neutral-800">
+                    {coin1.symbol}{" "}
+                    <span className="font-normal "> is worth</span>
+                  </span>
+                </div>
+              ) : (
+                <div>Limit Price</div>
+              )}
             </div>
             <div className="flex justify-between items-center">
-              <h2 className="text-2xl font-bold text-gray-900">3191.21</h2>
-              <div className="flex items-center space-x-2 p-1 cursor-pointer">
-                <Image
-                  src={group}
-                  width={20}
-                  height={20}
-                  alt="vector"
-                  className="w-5 h-5"
-                />
-                <span className="font-semibold px-2">QRN</span>
-              </div>
+              <Input
+                disabled={!(coin1 && coin2)}
+                className="focus:outline-none  text-lg"
+                placeholder="0.00"
+              />
+              <div className="flex items-center space-x-2 p-1 cursor-pointer"></div>
             </div>
           </div>
-          <div className="flex gap-2 mt-3 w-[219px] h-[28px]">
+          <div className="flex gap-2 mt-3">
             {buttons.map((label) => (
               <button
                 key={label}
@@ -367,61 +365,119 @@ export default function LimitComponent() {
             ))}
           </div>
         </div>
-        <div className="space-y-4 relative">
-          <form onSubmit={handleSubmit} className="space-y-5">
-            <div className="flex flex-col relative gap-2">
-              <TokenInput
-                label="Sell"
-                amount={sellAmount}
-                onChange={handleSellAmountChange}
-                coinType="coin1"
-                coinSelect={false}
-              />
-              <div className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 p-1 z-20">
-                <SwapButton onSwap={handleSwap} />
-              </div>
-              <TokenInput
-                label="Buy"
-                amount={buyAmount}
-                onChange={handleBuyAmountChange}
-                coinType="coin2"
-                coinSelect={false}
-              />
-            </div>
-            {error && <p className="text-red-500">{error}</p>}
-          </form>
-        </div>
-      </div>
-      <div className="w-[480px] flex justify-between p-3 rounded-lg mt-10">
-        <p className="text-gray-500 text-md">Expiry</p>
-        <div className="flex gap-1">
-          {options.map((option) => (
-            <button
-              key={option}
-              className={`px-3 py-1 rounded-lg text-sm font-semibold ${
-                expiry === option
-                  ? "bg-[#FFF7F7] text-red-500 border border-[#CE192D66]"
-                  : "text-gray-900"
-              }`}
-              onClick={() => setExpiry(option)}
+
+        <AnimatePresence mode="wait">
+          {isSubmitted ? (
+            <motion.div
+              key="progress"
+              initial={{ opacity: 0, x: 20 }}
+              animate={{ opacity: 1, x: 0 }}
+              exit={{ opacity: 0, x: -20 }}
+              transition={{ duration: 0.2 }}
             >
-              {option}
-            </button>
-          ))}
-        </div>
-      </div>
-      <button
-        onClick={handleSubmit}
-        className="w-[480px] text-gray-600 py-2 rounded-lg cursor-pointer bg-red-100 hover:bg-red-200"
-        disabled={!isConnected || !isFormValid || isSubmitted}
-      >
-        {isSubmitted ? "Order Submitted" : "Confirm"}
-      </button>
-      {showConfirmation && (
-        <div className="mt-4 p-4 bg-green-100 rounded">
-          <p className="text-green-700">Order successfully submitted!</p>
-        </div>
-      )}
-    </div>
+              {/* Limit Order Progress State */}
+              <div className="p-4 text-center">
+                <p className="text-lg font-semibold">Limit Order Submitted</p>
+                <button
+                  onClick={() => {
+                    setIsSubmitted(false);
+                    setShowConfirmation(false);
+                  }}
+                  className="mt-2 text-blue-500 underline"
+                >
+                  Go Back
+                </button>
+              </div>
+            </motion.div>
+          ) : showConfirmation ? (
+            <motion.div
+              key="confirmation"
+              initial={{ opacity: 0, x: 20 }}
+              animate={{ opacity: 1, x: 0 }}
+              exit={{ opacity: 0, x: -20 }}
+              transition={{ duration: 0.2 }}
+            >
+              <div className="p-4 text-center">
+                <p className="text-lg font-semibold">Confirm Limit Order</p>
+                <div className="flex justify-center gap-4 mt-2">
+                  <button
+                    onClick={() => setShowConfirmation(false)}
+                    className="text-red-500 underline"
+                  >
+                    Back
+                  </button>
+                  <button
+                    onClick={() => setIsSubmitted(true)}
+                    className="text-green-500 underline"
+                  >
+                    Confirm
+                  </button>
+                </div>
+              </div>
+            </motion.div>
+          ) : (
+            <motion.div
+              key="form"
+              initial={{ opacity: 0, x: -20 }}
+              animate={{ opacity: 1, x: 0 }}
+              exit={{ opacity: 0, x: 20 }}
+              transition={{ duration: 0.2 }}
+            >
+              <form onSubmit={handleSubmit} className="space-y-5 relative">
+                <div className="flex flex-col relative gap-2">
+                  <TokenInput
+                    label="Sell"
+                    amount={sellAmount}
+                    onChange={handleSellAmountChange}
+                    coinType="coin1"
+                    coinSelect={true}
+                  />
+                  <div className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 p-1 z-20">
+                    <SwapButton onSwap={handleSwap} />
+                  </div>
+                  <TokenInput
+                    label="Buy"
+                    amount={buyAmount}
+                    onChange={handleBuyAmountChange}
+                    coinType="coin2"
+                    coinSelect={true}
+                  />
+                </div>
+                {error && (
+                  <div className="text-red-500 text-sm mt-2" role="alert">
+                    {error}
+                  </div>
+                )}
+              </form>
+              <div className="flex justify-between p-3 rounded-lg mt-10">
+                <p className="text-gray-500 text-md">Expiry</p>
+                <div className="flex gap-1">
+                  {options.map((option) => (
+                    <button
+                      key={option}
+                      onClick={() => setExpiry(option)}
+                      className={`px-3 py-1 rounded-lg text-sm font-semibold ${
+                        expiry === option
+                          ? "bg-[#FFF7F7] text-red-500 border border-[#CE192D66]"
+                          : "text-gray-900"
+                      }`}
+                    >
+                      {option}
+                    </button>
+                  ))}
+                </div>
+              </div>
+              {/* Confirm Button */}
+              <button
+                onClick={handleSubmit}
+                className="w-full text-gray-600 py-2 rounded-lg cursor-pointer bg-gray-300"
+              >
+                Confirm
+              </button>
+            </motion.div>
+          )}
+        </AnimatePresence>
+      </Card>
+    </main>
   );
 }
