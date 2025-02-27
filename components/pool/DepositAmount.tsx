@@ -26,11 +26,10 @@ const ERC20ABI = [
 ];
 
 const NONFUNGIBLE_POSITION_MANAGER_ADDRESS =
-  "0xa2bcBce9B2727CAd75ec42bFf76a6d85DA129B9C";
+  "0xa2bcBce9B2727CAd75ec42bFf76a6d85DA129B9C"; //0x84C9bfD0c3B31d770eD386A332Dd9dFE26464bCD
 const chainId = 11155111;
 
 const DepositAmount = () => {
-  // Now assume fee is stored in the coin store along with coin1 and coin2.
   const { coin1, coin2, fee } = useCoinStore();
   const { setCurrentStep } = useStepContext();
   const [amount1, setAmount1] = useState("");
@@ -38,7 +37,6 @@ const DepositAmount = () => {
   const [loading, setLoading] = useState(false);
   const [txHash, setTxHash] = useState("");
   const [poolData, setPoolData] = useState<any>(null);
-
   const [provider, setProvider] = useState<ethers.BrowserProvider | null>(null);
   const [signer, setSigner] = useState<ethers.Signer | null>(null);
   const [account, setAccount] = useState<string>("");
@@ -71,11 +69,6 @@ const DepositAmount = () => {
   const fetchPoolData = async (): Promise<any> => {
     if (!provider) return null;
     try {
-      // const poolContract = new ethers.Contract(
-      //   "0x391246c0873ff6a14aba382bb6bc7ec3fe9bd083",
-      //   POOLABI,
-      //   provider
-      // );
       const storedPoolAddress = localStorage.getItem("poolAddress");
       if (!storedPoolAddress) {
         throw new Error("Pool address not found in local storage");
