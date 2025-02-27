@@ -29,12 +29,14 @@ interface SwapFormData {
   coin2: { image: string; name: string; symbol: string };
 }
 
+// function starts here to swap tokens
 const swapTokens = () => {
   const [sellAmount, setSellAmount] = useState("");
   const [buyAmount, setBuyAmount] = useState("");
   const [loading, setLoading] = useState(false);
   const [txHash, setTxHash] = useState("");
 
+  // here I am not sure if this we have to call on while user clicks on the swap button
   const swapTokens = async () => {
     let signer = null;
 
@@ -74,7 +76,7 @@ const swapTokens = () => {
         [buyAmount]
       ); // Encode any additional data if needed
 
-      // Call the swap function
+      // Call the swap function FROM THE UNISWAP CONTRACT DEPLOYED ONE
       const tx = await poolContract.swap(
         recipient,
         zeroForOne,
