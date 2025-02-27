@@ -73,16 +73,12 @@ export const useSwap = () => {
         swapRouterABI,
         signer
       );
-
-      // Ensure your coin objects include an `address` property.
       const tokenIn = coin1.address;
       const tokenOut = coin2.address;
       const fee = 3000; // 0.3% fee tier
       const recipient = await signer.getAddress();
-      const deadline = Math.floor(Date.now() / 1000) + 60 * 20; // 20 minutes from now
-      // Parse amounts using 18 decimals; adjust if your tokens use a different decimals setting.
+      const deadline = Math.floor(Date.now() / 1000) + 60 * 20;
       const amountIn = ethers.parseUnits(sellAmount, 6);
-      // For slippage protection, set a minimum output (here 1% less than the quoted buyAmount)
       const amountOutMinimum = ethers.parseUnits(
         (Number(buyAmount) * 0.99).toString(),
         6
