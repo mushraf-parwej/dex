@@ -759,18 +759,18 @@ import NonfungiblePositionManagerABI from "../../lib/config/positionmanagerabi.j
 import PoolABI from "../../lib/config/poolabi.json";
 
 // Define constants
-// const poolAddress = "0x391246c0873ff6a14aba382bb6bc7ec3fe9bd083";
-const poolAddress = "0x3ECDb2e215357c5C186fFC734B45277a831377b3";
+const poolAddress = "0x391246c0873ff6a14aba382bb6bc7ec3fe9bd083";
+// const poolAddress = "0x3ECDb2e215357c5C186fFC734B45277a831377b3";
 
-// const eurcAddress = "0x08210F9170F89Ab7658F0B5E3fF39b0E03C594D4"; // token0
-// const usdcAddress = "0x1c7D4B196Cb0C7B01d743Fbc6116a902379C7238"; // token1
-const token0 = "0x1c7D4B196Cb0C7B01d743Fbc6116a902379C7238";
-const token1 = "0x7daf26D64a62e2e1dB838C84bCAc5bdDb3b5D926";
+const eurcAddress = "0x08210F9170F89Ab7658F0B5E3fF39b0E03C594D4"; // token0
+const usdcAddress = "0x1c7D4B196Cb0C7B01d743Fbc6116a902379C7238"; // token1
+// const token0 = "0x1c7D4B196Cb0C7B01d743Fbc6116a902379C7238";
+// const token1 = "0x7daf26D64a62e2e1dB838C84bCAc5bdDb3b5D926";
 // Uniswap protocol constants
 const chainId = 11155111; // Sepolia testnet
 const factoryAddress = "0x32e175A35150847cFe9172cca3810e1d7E48f773"; // Uniswap V3 factory on Sepolia
 const NONFUNGIBLE_POSITION_MANAGER_ADDRESS =
-  "0xa2bcBce9B2727CAd75ec42bFf76a6d85DA129B9C";
+  "0x84C9bfD0c3B31d770eD386A332Dd9dFE26464bCD";
 
 // Minimal ERC20 ABI
 const ERC20ABI = [
@@ -840,10 +840,10 @@ const AddLiquidity = () => {
     setLoading(true);
     try {
       // Approve tokens for the NonfungiblePositionManager
-      const token0Contract = new ethers.Contract(token0, ERC20ABI, signer);
-      const token1Contract = new ethers.Contract(token1, ERC20ABI, signer);
+      const token0Contract = new ethers.Contract(eurcAddress, ERC20ABI, signer);
+      const token1Contract = new ethers.Contract(usdcAddress, ERC20ABI, signer);
       const amount0 = parseUnits("1", 6);
-      const amount1 = parseUnits("5000", 6);
+      const amount1 = parseUnits("1", 6);
       console.log("Approving token transfers...");
       const tx0 = await token0Contract.approve(
         NONFUNGIBLE_POSITION_MANAGER_ADDRESS,
@@ -858,8 +858,8 @@ const AddLiquidity = () => {
       console.log("Token approvals complete.");
 
       // Create token instances using Uniswap SDK
-      const TokenA = new Token(chainId, token1, 6, "USDC", "USDC Token");
-      const TokenB = new Token(chainId, token0, 18, "ETH", "ETH Coin");
+      const TokenA = new Token(chainId, eurcAddress, 6, "USDC", "USDC Token");
+      const TokenB = new Token(chainId, usdcAddress, 6, "ETH", "ETH Coin");
 
       // Use local pool data (if already in state) or fetch new data
       const data = poolData || (await fetchPoolData());
@@ -962,10 +962,10 @@ const AddLiquidity = () => {
         <strong>Pool Address:</strong> {poolAddress}
       </p>
       <p>
-        <strong>Token0 (EURC):</strong> {token0}
+        <strong>Token0 (EURC):</strong> {eurcAddress}
       </p>
       <p>
-        <strong>Token1 (USDC):</strong> {token1}
+        <strong>Token1 (USDC):</strong> {usdcAddress}
       </p>
       <button
         onClick={fetchPoolData}
