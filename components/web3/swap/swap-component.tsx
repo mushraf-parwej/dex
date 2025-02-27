@@ -17,6 +17,9 @@ import {
 import { SwapConfirmation } from "./SwapConfirmation";
 import { SwapProgress } from "./SwapProgress";
 import { useCoinStore } from "@/store";
+import { ethers } from "ethers";
+import ABI from "../../../../dex/lib/config/poolabi.json";
+const poolAddress = "0x06ad811434afd10E597232B4513b70b3a8950a1e"; // existing pool address
 
 // Define a TypeScript interface for our form data
 interface SwapFormData {
@@ -25,6 +28,75 @@ interface SwapFormData {
   coin1: { image: string; name: string; symbol: string }; // Replace `unknown` with a proper coin type as available in your project
   coin2: { image: string; name: string; symbol: string };
 }
+
+// function starts here to swap tokens
+const swapTokens = () => {
+  const [sellAmount, setSellAmount] = useState("");
+  const [buyAmount, setBuyAmount] = useState("");
+  const [loading, setLoading] = useState(false);
+  const [txHash, setTxHash] = useState("");
+
+  // here I am not sure if this we have to call on while user clicks on the swap button
+  const swapTokens = async () => {
+    let signer = null;
+
+    let provider;
+    if (window.ethereum == null) {
+      // If MetaMask is not installed, we use the default provider,
+      // which is backed by a variety of third-party services (such
+      // as INFURA). They do not have private keys installed,
+      // so they only have read-only access
+      console.log("MetaMask not installed; using read-only defaults");
+      provider = ethers.getDefaultProvider();
+    } else {
+      // Connect to the MetaMask EIP-1193 object. This is a standard
+      // protocol that allows Ethers access to make all read-only
+      // requests through MetaMask.
+      provider = new ethers.BrowserProvider(window.ethereum);
+
+      // It also provides an opportunity to request access to write
+      // operations, which will be performed by the private key
+      // that MetaMask manages for the user.
+      signer = await provider.getSigner();
+    }
+
+    try {
+      setLoading(true);
+      const provider = new ethers.BrowserProvider(window.ethereum);
+      const signer = await provider.getSigner();
+      const poolContract = new ethers.Contract(poolAddress, ABI, signer);
+
+      // Define parameters for the swap function
+      const recipient = await signer.getAddress(); // Get the user's wallet address
+      const zeroForOne = true; // Set this based on which token you are swapping (true for token0 to token1)
+      const amountSpecified = ethers.parseUnits(sellAmount, 18); // Assuming token has 18 decimals
+      const sqrtPriceLimitX96 = 0; // Set this to your desired price limit or use 0 for no limit
+      const data = ethers.AbiCoder.defaultAbiCoder().encode(
+        ["uint256"],
+        [buyAmount]
+      ); // Encode any additional data if needed
+
+      // Call the swap function FROM THE UNISWAP CONTRACT DEPLOYED ONE
+      const tx = await poolContract.swap(
+        recipient,
+        zeroForOne,
+        amountSpecified,
+        sqrtPriceLimitX96, // fetch from pool poolcontract
+        data // optional
+      );
+      console.log("Transaction sent:", tx.hash);
+      setTxHash(tx.hash);
+
+      // Wait for transaction confirmation
+      await tx.wait();
+      console.log("Transaction confirmed");
+    } catch (error) {
+      console.error("Error executing swap:", error);
+    } finally {
+      setLoading(false);
+    }
+  };
+};
 
 const steps = [
   {
@@ -124,7 +196,9 @@ const SwapComponent: FC = () => {
               <SwapConfirmation
                 data={formData as SwapFormData}
                 onBack={() => setShowConfirmation(false)}
-                onConfirm={() => setIsSubmitted(true)}
+                onConfirm={() => {
+                  swapTokens();
+                }}
               />
             </motion.div>
           ) : (
