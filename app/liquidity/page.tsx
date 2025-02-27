@@ -767,7 +767,7 @@ const usdcAddress = "0x1c7D4B196Cb0C7B01d743Fbc6116a902379C7238"; // token1
 // const token0 = "0x1c7D4B196Cb0C7B01d743Fbc6116a902379C7238";
 // const token1 = "0x7daf26D64a62e2e1dB838C84bCAc5bdDb3b5D926";
 // Uniswap protocol constants
-const chainId = 11155111; // Sepolia testnet
+const chainId = 11155111;
 const factoryAddress = "0x32e175A35150847cFe9172cca3810e1d7E48f773"; // Uniswap V3 factory on Sepolia
 const NONFUNGIBLE_POSITION_MANAGER_ADDRESS =
   "0x84C9bfD0c3B31d770eD386A332Dd9dFE26464bCD";
