@@ -256,7 +256,7 @@ const SwapComponent: FC = () => {
     handleSellAmountChange,
     handleBuyAmountChange,
     handleSwap,
-    executeSwapTransaction, // get our new swap function
+    executeSwapTransaction,
   } = useSwap();
 
   // Validate the form data
