@@ -9,7 +9,7 @@ const LeftSection = () => {
       <Link href="/" className="flex items-center gap-2">
         <span className="text-2xl font-semibold">QDEX</span>
       </Link>
-      <div className="hidden md:flex items-center gap-6">
+      <div className="hidden md:flex cleitems-center gap-6">
         <NavLink href="/" label="Trade" />
         <NavLink href="/pool" label="Pool" />
         <NavLink href="/explore/tokens" label="Explore" />

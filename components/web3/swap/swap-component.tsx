@@ -33,11 +33,85 @@ interface SwapFormData {
 const swapTokens = () => {
   const [sellAmount, setSellAmount] = useState("");
   const [buyAmount, setBuyAmount] = useState("");
+
+  // here I am not sure if this we have to call on while user clicks on the swap button
+};
+
+const steps = [
+  {
+    label: "Approve Token",
+    description: "Approve token for swapping",
+  },
+  {
+    label: "Confirm Swap",
+    description: "Confirm the transaction in your wallet",
+  },
+  {
+    label: "Transaction Submitted",
+    description: "Waiting for transaction confirmation",
+  },
+  {
+    label: "Transaction Completed",
+    description: "Your swap has been completed successfully",
+  },
+];
+
+const SwapComponent: FC = () => {
+  const { isConnected } = useAccount();
+  const { coin1, coin2 } = useCoinStore();
   const [loading, setLoading] = useState(false);
   const [txHash, setTxHash] = useState("");
 
-  // here I am not sure if this we have to call on while user clicks on the swap button
-  const swapTokens = async () => {
+  // Local component state
+  const [isSubmitted, setIsSubmitted] = useState<boolean>(false);
+  const [showConfirmation, setShowConfirmation] = useState<boolean>(false);
+  const [formData, setFormData] = useState<SwapFormData | null>(null);
+  const [error, setError] = useState<string | null>(null);
+
+  const {
+    sellAmount,
+    buyAmount,
+    handleSellAmountChange,
+    handleBuyAmountChange,
+    handleSwap,
+  } = useSwap();
+
+  // Validate the form data
+  const isFormValid = Boolean(
+    sellAmount &&
+      buyAmount &&
+      coin1 &&
+      coin2 &&
+      Number(sellAmount) > 0 &&
+      Number(buyAmount) > 0
+  );
+
+  // Use useCallback to memoize the submit handler
+  const handleSubmit = useCallback(
+    (e: React.FormEvent) => {
+      e.preventDefault();
+
+      if (!isFormValid) {
+        setError("Please ensure all fields are filled correctly.");
+        return;
+      }
+
+      // Clear any previous errors
+      setError(null);
+
+      // Set the form data using a typed object
+      setFormData({
+        sellAmount,
+        buyAmount,
+        coin1,
+        coin2,
+      });
+
+      setShowConfirmation(true);
+    },
+    [isFormValid, sellAmount, buyAmount, coin1, coin2]
+  );
+  const swap = async () => {
     let signer = null;
 
     let provider;
@@ -96,80 +170,6 @@ const swapTokens = () => {
       setLoading(false);
     }
   };
-};
-
-const steps = [
-  {
-    label: "Approve Token",
-    description: "Approve token for swapping",
-  },
-  {
-    label: "Confirm Swap",
-    description: "Confirm the transaction in your wallet",
-  },
-  {
-    label: "Transaction Submitted",
-    description: "Waiting for transaction confirmation",
-  },
-  {
-    label: "Transaction Completed",
-    description: "Your swap has been completed successfully",
-  },
-];
-
-const SwapComponent: FC = () => {
-  const { isConnected } = useAccount();
-  const { coin1, coin2 } = useCoinStore();
-
-  // Local component state
-  const [isSubmitted, setIsSubmitted] = useState<boolean>(false);
-  const [showConfirmation, setShowConfirmation] = useState<boolean>(false);
-  const [formData, setFormData] = useState<SwapFormData | null>(null);
-  const [error, setError] = useState<string | null>(null);
-
-  const {
-    sellAmount,
-    buyAmount,
-    handleSellAmountChange,
-    handleBuyAmountChange,
-    handleSwap,
-  } = useSwap();
-
-  // Validate the form data
-  const isFormValid = Boolean(
-    sellAmount &&
-      buyAmount &&
-      coin1 &&
-      coin2 &&
-      Number(sellAmount) > 0 &&
-      Number(buyAmount) > 0
-  );
-
-  // Use useCallback to memoize the submit handler
-  const handleSubmit = useCallback(
-    (e: React.FormEvent) => {
-      e.preventDefault();
-
-      if (!isFormValid) {
-        setError("Please ensure all fields are filled correctly.");
-        return;
-      }
-
-      // Clear any previous errors
-      setError(null);
-
-      // Set the form data using a typed object
-      setFormData({
-        sellAmount,
-        buyAmount,
-        coin1,
-        coin2,
-      });
-
-      setShowConfirmation(true);
-    },
-    [isFormValid, sellAmount, buyAmount, coin1, coin2]
-  );
 
   return (
     <main className="md:min-w-[480px] w-full min-h-[420px]  z-30 mx-auto p-6">
@@ -196,9 +196,7 @@ const SwapComponent: FC = () => {
               <SwapConfirmation
                 data={formData as SwapFormData}
                 onBack={() => setShowConfirmation(false)}
-                onConfirm={() => {
-                  swapTokens();
-                }}
+                onConfirm={() => swap()}
               />
             </motion.div>
           ) : (
