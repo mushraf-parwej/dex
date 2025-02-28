@@ -19,6 +19,7 @@ export function RangeTabs({ minPrice, maxPrice, setMinPrice, setMaxPrice }) {
   const [tabData, setTabData] = useState("");
   console.log(tabData);
   return (
+    //range tabs
     <Tabs defaultValue="fullRange" className="w-full">
       <TabsList className="grid w-full grid-cols-2 ">
         <TabsTrigger value="fullRange">Full Range</TabsTrigger>
