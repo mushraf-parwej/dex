@@ -1,4 +1,5 @@
 import React, { useEffect, useState, useRef, useCallback } from "react";
+import { ethers } from "ethers";
 import {
   Dialog,
   DialogContent,
@@ -15,7 +16,7 @@ import { ChevronDownIcon, MagnifyingGlassIcon } from "@radix-ui/react-icons";
 import Image from "next/image";
 import { Skeleton } from "@/components/ui/skeleton";
 import { SearchInput } from "@/components/common/SearchBar";
-import { filterCoins} from "@/lib/utils/utils";
+import { filterCoins } from "@/lib/utils/utils";
 
 const ITEMS_PER_PAGE = 20;
 export interface Coin {
@@ -23,11 +24,18 @@ export interface Coin {
   name: string;
   symbol: string;
   image: string;
+  address: string;
 }
 
 interface CoinSelectProps {
   coinType: "coin1" | "coin2";
 }
+const ERC20ABI = [
+  "function name() view returns (string)",
+  "function balanceOf(address) view returns (uint256)",
+  "function approve(address spender, uint256 amount) returns (bool)",
+  "function allowance(address owner, address spender) view returns (uint256)",
+];
 
 const CoinLoadingSkeleton = () => (
   <ScrollArea className="h-[60vh] rounded-md border p-2">
@@ -64,6 +72,7 @@ const CoinSelect: React.FC<CoinSelectProps> = ({ coinType }) => {
 
         // Fetch CoinGecko tokens
         const coinGeckoData = await getCoinData();
+        console.log(coinGeckoData);
         if (Array.isArray(coinGeckoData)) {
           setCoinData(coinGeckoData);
         } else {
@@ -74,26 +83,53 @@ const CoinSelect: React.FC<CoinSelectProps> = ({ coinType }) => {
         const res = await fetch("/api/pools");
         const poolData = await res.json();
         if (Array.isArray(poolData)) {
-          const uniqueTokens = new Map();
-
+          // Collect unique token addresses from poolData
+          const uniqueTokenAddresses = new Set<string>();
           poolData.forEach((pool) => {
-            if (!uniqueTokens.has(pool.token0)) {
-              uniqueTokens.set(pool.token0, {
-                name: `Custom Token`,
-                symbol: `CUSTOM`,
-                address: pool.token0,
-              });
-            }
-            if (!uniqueTokens.has(pool.token1)) {
-              uniqueTokens.set(pool.token1, {
-                name: `Custom Token`,
-                symbol: `CUSTOM`,
-                address: pool.token1,
-              });
-            }
+            uniqueTokenAddresses.add(pool.token0);
+            uniqueTokenAddresses.add(pool.token1);
           });
 
-          setCustomTokens(Array.from(uniqueTokens.values()));
+          // Set up the ethers provider. Replace NEXT_PUBLIC_RPC_URL with your RPC endpoint.
+          const provider = new ethers.BrowserProvider(window.ethereum);
+
+          // Fetch token names using the ERC20 ABI
+          const tokenPromises = Array.from(uniqueTokenAddresses).map(
+            async (tokenAddress) => {
+              try {
+                const tokenContract = new ethers.Contract(
+                  tokenAddress,
+                  ERC20ABI,
+                  provider
+                );
+                const tokenName = await tokenContract.name();
+                return {
+                  name: tokenName,
+                  symbol: "CUSTOM", // adjust if you need to fetch the actual symbol too
+                  address: tokenAddress,
+                  id: tokenAddress, // ensure each token has a unique id if needed
+                  image: "",
+                };
+              } catch (e) {
+                console.error(
+                  "Failed to fetch token name for",
+                  tokenAddress,
+                  e
+                );
+                // Fallback: use the token address as the name
+                return {
+                  name: tokenAddress,
+                  symbol: "CUSTOM",
+                  address: tokenAddress,
+                  id: tokenAddress,
+                  image: "",
+                };
+              }
+            }
+          );
+
+          const tokens = await Promise.all(tokenPromises);
+          setCustomTokens(tokens);
         } else {
           console.error("Error fetching pools");
         }

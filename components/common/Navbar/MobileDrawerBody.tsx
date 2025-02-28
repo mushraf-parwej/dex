@@ -24,14 +24,6 @@ const MobileDrawerBody = () => {
         <MobileIconButton src={theme} alt="Theme" label="Theme" />
       </div>
       <ConnectButton showBalance={false} />
-      <div className="sm:hidden mt-4">
-        <SearchInput
-          placeholder="Search tokens..."
-          className="w-full"
-          value=""
-          onChange={() => {}}
-        />
-      </div>
     </div>
   );
 };

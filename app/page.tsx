@@ -15,7 +15,7 @@ export default function Home({ searchParams }: HomeProps) {
   const currentTab = searchParams.tab || "swap";
 
   return (
-    <div className="flex flex-col h-[calc(100vh)] items-center justify-start py-32">
+    <div className="flex flex-col h-[calc(100vh)] items-center justify-start py-20">
       <Tabs className="bg-transparent " value={currentTab} defaultValue="swap">
         <div className="flex items-center justify-between  px-8">
           <TabsList className="flex flex-row max-w-xl">
@@ -39,7 +39,6 @@ export default function Home({ searchParams }: HomeProps) {
           <LimitComponent />
         </TabsContent>
       </Tabs>
-
     </div>
   );
 }
