@@ -24,7 +24,7 @@ const CreatePool = () => {
       if (coin1 && coin2 && fee) {
         try {
           const response = await fetch(
-            `/api/pools?token0=${coin1.address}&token1=${coin2.address}&feeTier=${fee}`
+            `${process.env.NEXT_PUBLIC_BASE_URL}/api/pools?token0=${coin1.address}&token1=${coin2.address}&feeTier=${fee}`
           );
           const result = await response.json();
 
