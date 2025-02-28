@@ -1,6 +1,5 @@
 "use client";
-
-import { useState } from "react";
+import React, { useState, useCallback, FC } from "react";
 import { ChevronDown } from "lucide-react";
 import { Card } from "@/components/ui/card";
 import { useCoinStore } from "@/store";
@@ -13,14 +12,17 @@ export default function BuyForm() {
   const buttons = ["$3000", "$6000", "$9000", "$10,000"];
   const [activeButton, setActiveButton] = useState(buttons[0]);
 
-  const handleSubmit = (e: React.FormEvent) => {
-    e.preventDefault();
-    console.log("Confirmed Limit Price:", limitPrice);
-    // i have to add lofic here 
-  };
+const handleSubmit = useCallback(
+    (e: React.FormEvent) => {
+      e.preventDefault();
+
+      
+    },
+    []
+  );
 
   return (
-    <main className="md:min-w-[480px] w-full min-h-[420px] z-30 mx-auto p-6">
+    <main className="md:min-w-[480px] w-full min-h-[420px] z-30 mx-auto p-6 md:p-6">
       <Card className="border backdrop-blur-lg rounded-xl p-4 shadow-lg">
 
         <div className="flex items-center justify-between mb-4">
@@ -38,7 +40,7 @@ export default function BuyForm() {
             </span>
           </div>
         </div>
-        <form onSubmit={handleSubmit}>
+        <div onSubmit={handleSubmit}>
           <div className="w-full rounded-xl p-4 bg-[#E0E0E04D] flex flex-col gap-4">
             <div className="flex justify-between items-center">
               {coin1 && (
@@ -88,7 +90,7 @@ export default function BuyForm() {
               Confirm
             </button>
           </div>
-        </form>
+        </div>
       </Card>
     </main>
   ); 
