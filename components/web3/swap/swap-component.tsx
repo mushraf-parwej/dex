@@ -257,6 +257,9 @@ const SwapComponent: FC = () => {
     handleBuyAmountChange,
     handleSwap,
     executeSwapTransaction,
+    steps,
+    currentStep,
+    isCompleted,
   } = useSwap();
 
   // Validate the form data
@@ -307,6 +310,8 @@ const SwapComponent: FC = () => {
                 setShowConfirmation(false);
               }}
               steps={steps}
+              currentStep={currentStep}
+              isCompleted={isCompleted}
             />
           ) : showConfirmation ? (
             <motion.div

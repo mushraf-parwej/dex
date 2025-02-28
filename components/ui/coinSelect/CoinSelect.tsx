@@ -59,89 +59,83 @@ const CoinSelect: React.FC<CoinSelectProps> = ({ coinType }) => {
   const [error, setError] = useState<string | null>(null);
   const [visibleCoins, setVisibleCoins] = useState(ITEMS_PER_PAGE);
   const observerRef = useRef<IntersectionObserver | null>(null);
+  const [cachedDataFetched, setCachedDataFetched] = useState(false);
 
   const { coin1, coin2, setCoin1, setCoin2 } = useCoinStore();
 
-  useEffect(() => {
-    const fetchTokens = async () => {
-      if (!isOpen) return;
+  const fetchTokens = useCallback(async () => {
+    if (!isOpen || cachedDataFetched) return;
 
-      try {
-        setIsLoading(true);
-        setError(null);
+    try {
+      setIsLoading(true);
+      setError(null);
 
-        // Fetch CoinGecko tokens
-        const coinGeckoData = await getCoinData();
-        console.log(coinGeckoData);
-        if (Array.isArray(coinGeckoData)) {
-          setCoinData(coinGeckoData);
-        } else {
-          setError("Invalid CoinGecko data format");
-        }
-
-        // Fetch Custom Tokens from MongoDB
-        const res = await fetch("/api/pools");
-        const poolData = await res.json();
-        if (Array.isArray(poolData)) {
-          // Collect unique token addresses from poolData
-          const uniqueTokenAddresses = new Set<string>();
-          poolData.forEach((pool) => {
-            uniqueTokenAddresses.add(pool.token0);
-            uniqueTokenAddresses.add(pool.token1);
-          });
-
-          // Set up the ethers provider. Replace NEXT_PUBLIC_RPC_URL with your RPC endpoint.
-          const provider = new ethers.BrowserProvider(window.ethereum);
-
-          // Fetch token names using the ERC20 ABI
-          const tokenPromises = Array.from(uniqueTokenAddresses).map(
-            async (tokenAddress) => {
-              try {
-                const tokenContract = new ethers.Contract(
-                  tokenAddress,
-                  ERC20ABI,
-                  provider
-                );
-                const tokenName = await tokenContract.name();
-                return {
-                  name: tokenName,
-                  symbol: "CUSTOM", // adjust if you need to fetch the actual symbol too
-                  address: tokenAddress,
-                  id: tokenAddress, // ensure each token has a unique id if needed
-                  image: "",
-                };
-              } catch (e) {
-                console.error(
-                  "Failed to fetch token name for",
-                  tokenAddress,
-                  e
-                );
-                // Fallback: use the token address as the name
-                return {
-                  name: tokenAddress,
-                  symbol: "CUSTOM",
-                  address: tokenAddress,
-                  id: tokenAddress,
-                  image: "",
-                };
-              }
-            }
-          );
-
-          const tokens = await Promise.all(tokenPromises);
-          setCustomTokens(tokens);
-        } else {
-          console.error("Error fetching pools");
-        }
-      } catch (err) {
-        setError("Failed to fetch token data");
-      } finally {
-        setIsLoading(false);
+      // Fetch CoinGecko tokens
+      const coinGeckoData = await getCoinData();
+      if (Array.isArray(coinGeckoData)) {
+        setCoinData(coinGeckoData);
+      } else {
+        setError("Invalid CoinGecko data format");
       }
-    };
 
+      // Fetch Custom Tokens from MongoDB
+      const res = await fetch("/api/pools");
+      const poolData = await res.json();
+      if (Array.isArray(poolData)) {
+        const uniqueTokenAddresses = new Set<string>();
+        poolData.forEach((pool) => {
+          uniqueTokenAddresses.add(pool.token0);
+          uniqueTokenAddresses.add(pool.token1);
+        });
+
+        const provider = new ethers.BrowserProvider(window.ethereum);
+
+        const tokenPromises = Array.from(uniqueTokenAddresses).map(
+          async (tokenAddress) => {
+            try {
+              const tokenContract = new ethers.Contract(
+                tokenAddress,
+                ERC20ABI,
+                provider
+              );
+              const tokenName = await tokenContract.name();
+              return {
+                name: tokenName,
+                symbol: "CUSTOM",
+                address: tokenAddress,
+                id: tokenAddress,
+                image: "",
+              };
+            } catch (e) {
+              console.error("Failed to fetch token name for", tokenAddress, e);
+              return {
+                name: tokenAddress,
+                symbol: "CUSTOM",
+                address: tokenAddress,
+                id: tokenAddress,
+                image: "",
+              };
+            }
+          }
+        );
+
+        const tokens = await Promise.all(tokenPromises);
+        setCustomTokens(tokens);
+      } else {
+        console.error("Error fetching pools");
+      }
+
+      setCachedDataFetched(true); // Mark data as fetched
+    } catch (err) {
+      setError("Failed to fetch token data");
+    } finally {
+      setIsLoading(false);
+    }
+  }, [isOpen, cachedDataFetched]); // Dependencies for stability
+
+  useEffect(() => {
     fetchTokens();
-  }, [isOpen]);
+  }, [fetchTokens]);
 
   const allTokens = [...customTokens, ...coinData];
 
