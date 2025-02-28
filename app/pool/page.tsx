@@ -2,7 +2,7 @@
 
 import React, { useState } from "react";
 import { ethers } from "ethers";
-import ABI from "../../lib/config/factoryabi.json";
+import ABI from "../../config/factoryabi.json";
 const factoryAddress = "0x32e175A35150847cFe9172cca3810e1d7E48f773";
 
 const Pool = () => {

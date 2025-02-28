@@ -15,7 +15,7 @@ import { ChevronDownIcon, MagnifyingGlassIcon } from "@radix-ui/react-icons";
 import Image from "next/image";
 import { Skeleton } from "@/components/ui/skeleton";
 import { SearchInput } from "@/components/common/SearchBar";
-import { filterCoins} from "@/lib/utils/utils";
+import { filterCoins} from "@/utils/utils";
 
 const ITEMS_PER_PAGE = 20;
 export interface Coin {

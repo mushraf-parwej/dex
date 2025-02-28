@@ -1,5 +1,5 @@
 import React from 'react';
-import { LimitOrder } from '@/types/limit-order'; // Ensure you have this type defined
+import { LimitOrder } from '@/types/limit-order';
 
 const LimitOrderList = ({ orders, onCancel }) => {
   return (
