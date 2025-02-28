@@ -33,7 +33,7 @@ export const getCoinPrice = async (coinName: string) => {
     );
 
     if (!res.ok) {
-      throw new Error(`Failed to fetch coin price for ${coinName}`);
+      throw new Error(`Failed to fetch  price for ${coinName}`);
     }
 
     const data = await res.json();
