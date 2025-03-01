@@ -159,11 +159,11 @@ const CoinSelect: React.FC<CoinSelectProps> = ({ coinType }) => {
     [isLoading, visibleCoins, filteredCoins.length]
   );
 
-  const handleSelectCoin = (coin: Coin) => {
+  const handleSelectCoin = (Coin) => {
     if (coinType === "coin1") {
-      setCoin1(coin);
+      setCoin1(Coin);
     } else {
-      setCoin2(coin);
+      setCoin2(Coin);
     }
     setIsOpen(false);
   };
