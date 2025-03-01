@@ -64,6 +64,7 @@ import { Button } from "../ui/button";
 import { useCoinStore } from "@/store";
 import { TokenInput } from "../web3/swap/TokenInput";
 import { ethers } from "ethers";
+import toast from "react-hot-toast";
 
 export default function SendComponent() {
   const [amount, setAmount] = useState("");
@@ -73,25 +74,27 @@ export default function SendComponent() {
   const handleSend = async () => {
     // Validate wallet address
     if (!walletAddress || !ethers.isAddress(walletAddress)) {
-      alert("Please enter a valid wallet address.");
+      toast.error("Please enter a valid wallet address.");
       return;
     }
 
     // Validate amount
     if (!amount || isNaN(Number(amount)) || Number(amount) <= 0) {
-      alert("Please enter a valid amount.");
+      toast.error("Please enter a valid amount");
       return;
     }
 
     // Validate token selection (assumes coin1.tokenAddress exists)
     if (!coin1 || !coin1.address) {
-      alert("No token selected for sending.");
+      toast.error("No token selected for sending.");
       return;
     }
 
     // Ensure a web3 provider is available
     if (!window.ethereum) {
-      alert("Please install MetaMask or another Ethereum wallet provider.");
+      toast.error(
+        "Please install MetasMask or another Ethereum wallet provider"
+      );
       return;
     }
 
@@ -123,10 +126,10 @@ export default function SendComponent() {
 
       // Wait for the transaction to be confirmed
       await tx.wait();
-      alert(`Transaction successful! Transaction hash: ${tx.hash}`);
+      toast.error(`Transaction successful! Transaction hash: ${tx.hash}`);
     } catch (error) {
       console.error("Error sending tokens:", error);
-      alert(`Transaction failed: ${error.message}`);
+      toast.error(`Transaction failed: ${error.message}`);
     }
   };
 
