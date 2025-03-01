@@ -64,7 +64,7 @@ export const useSwap = () => {
       await provider.send("eth_requestAccounts", []);
 
       const signer = await provider.getSigner();
-      const swapRouterAddress = "0x10B1131a444595b4f3F6bDb56aB4C8aC6dDE35Be";
+      const swapRouterAddress = "0x217eE4295fcFDedF740080fA12b6ec82c60A973a";
 
       const swapRouter = new ethers.Contract(
         swapRouterAddress,
@@ -78,7 +78,7 @@ export const useSwap = () => {
       const deadline = Math.floor(Date.now() / 1000) + 60 * 20;
       const amountIn = ethers.parseUnits(sellAmount, 6);
       const amountOutMinimum = ethers.parseUnits(
-        (Number(buyAmount) * 0.99).toString(),
+        (Number(buyAmount) * 0.5).toString(),
         6
       );
       const sqrtPriceLimitX96 = "79228162514264337593543950336";
