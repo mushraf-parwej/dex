@@ -8,17 +8,19 @@ import {
   DialogTrigger,
 } from "@/components/ui/dialog";
 import { getCoinData } from "@/actions/coingecko/getCoinData.action";
+import { getPools } from "@/actions/pool/getPoolData.action"; // Moved API call to action
 import { Button } from "../button";
 import { ScrollArea } from "../scroll-area";
-import { Input } from "../input";
 import { useCoinStore } from "@/store";
-import { ChevronDownIcon, MagnifyingGlassIcon } from "@radix-ui/react-icons";
+import { ChevronDownIcon } from "@radix-ui/react-icons";
 import Image from "next/image";
 import { Skeleton } from "@/components/ui/skeleton";
 import { SearchInput } from "@/components/common/SearchBar";
 import { filterCoins } from "@/lib/utils/utils";
+import toast from "react-hot-toast";
 
 const ITEMS_PER_PAGE = 20;
+
 export interface Coin {
   id: string;
   name: string;
@@ -30,12 +32,8 @@ export interface Coin {
 interface CoinSelectProps {
   coinType: "coin1" | "coin2";
 }
-const ERC20ABI = [
-  "function name() view returns (string)",
-  "function balanceOf(address) view returns (uint256)",
-  "function approve(address spender, uint256 amount) returns (bool)",
-  "function allowance(address owner, address spender) view returns (uint256)",
-];
+
+const ERC20ABI = ["function name() view returns (string)"];
 
 const CoinLoadingSkeleton = () => (
   <ScrollArea className="h-[60vh] rounded-md border p-2">
@@ -57,30 +55,33 @@ const CoinSelect: React.FC<CoinSelectProps> = ({ coinType }) => {
   const [searchQuery, setSearchQuery] = useState("");
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  const [visibleCoins, setVisibleCoins] = useState(ITEMS_PER_PAGE);
-  const observerRef = useRef<IntersectionObserver | null>(null);
-  const [cachedDataFetched, setCachedDataFetched] = useState(false);
-
+  const [walletConnected, setWalletConnected] = useState(false);
   const { coin1, coin2, setCoin1, setCoin2 } = useCoinStore();
+  const observerRef = useRef<IntersectionObserver | null>(null);
+  const [visibleCoins, setVisibleCoins] = useState(ITEMS_PER_PAGE);
 
+  // **Check if MetaMask is installed and wallet is connected**
+
+  // **Fetch Coins & Custom Tokens**
   const fetchTokens = useCallback(async () => {
-    if (!isOpen || cachedDataFetched) return;
+    if (!isOpen) return;
 
     try {
       setIsLoading(true);
       setError(null);
 
-      // Fetch CoinGecko tokens
+      // Fetch CoinGecko data
       const coinGeckoData = await getCoinData();
       if (Array.isArray(coinGeckoData)) {
         setCoinData(coinGeckoData);
       } else {
         setError("Invalid CoinGecko data format");
+        toast.error("Invalid CoinGecko Data");
       }
 
-      // Fetch Custom Tokens from MongoDB
-      const res = await fetch("/api/pools");
-      const poolData = await res.json();
+      // Fetch Custom Tokens only if wallet is connected
+
+      const poolData = await getPools();
       if (Array.isArray(poolData)) {
         const uniqueTokenAddresses = new Set<string>();
         poolData.forEach((pool) => {
@@ -89,7 +90,8 @@ const CoinSelect: React.FC<CoinSelectProps> = ({ coinType }) => {
         });
 
         const provider = new ethers.BrowserProvider(window.ethereum);
-
+        console.log("pointer");
+        console.log(provider);
         const tokenPromises = Array.from(uniqueTokenAddresses).map(
           async (tokenAddress) => {
             try {
@@ -107,7 +109,6 @@ const CoinSelect: React.FC<CoinSelectProps> = ({ coinType }) => {
                 image: "",
               };
             } catch (e) {
-              console.error("Failed to fetch token name for", tokenAddress, e);
               return {
                 name: tokenAddress,
                 symbol: "CUSTOM",
@@ -122,25 +123,23 @@ const CoinSelect: React.FC<CoinSelectProps> = ({ coinType }) => {
         const tokens = await Promise.all(tokenPromises);
         setCustomTokens(tokens);
       } else {
-        console.error("Error fetching pools");
+        setError("Failed to fetch pools");
+        toast.error("Failed to fetch pools");
       }
-
-      setCachedDataFetched(true); // Mark data as fetched
     } catch (err) {
       setError("Failed to fetch token data");
+      toast.error("Failed to fetch token data");
     } finally {
       setIsLoading(false);
     }
-  }, [isOpen, cachedDataFetched]); // Dependencies for stability
+  }, [isOpen, walletConnected]);
 
   useEffect(() => {
     fetchTokens();
   }, [fetchTokens]);
 
   const allTokens = [...customTokens, ...coinData];
-
   const filteredCoins = filterCoins(allTokens, searchQuery);
-
   const paginatedCoins = filteredCoins.slice(0, visibleCoins);
 
   const lastCoinRef = useCallback(
@@ -160,44 +159,18 @@ const CoinSelect: React.FC<CoinSelectProps> = ({ coinType }) => {
   );
 
   const handleSelectCoin = (coin: Coin) => {
-    if (coinType === "coin1") {
-      setCoin1(coin);
-    } else {
-      setCoin2(coin);
-    }
+    coinType === "coin1" ? setCoin1(coin) : setCoin2(coin);
     setIsOpen(false);
   };
-
-  const selectedCoin = coinType === "coin1" ? coin1 : coin2;
 
   return (
     <Dialog open={isOpen} onOpenChange={setIsOpen}>
       <DialogTrigger asChild>
-        <Button
-          className="border border-red hover:bg-red/10 transition-colors p-2.5 rounded-lg w-[160px] h-[44px]"
-          onClick={() => setIsOpen(true)}
-        >
+        <Button className="border border-red hover:bg-red/10 transition-colors p-2.5 rounded-lg w-[160px] h-[44px]">
           <div className="flex items-center justify-between w-full">
-            {selectedCoin ? (
-              <div className="flex items-center flex-1 min-w-0">
-                {selectedCoin.image ? (
-                  <Image
-                    src={selectedCoin.image}
-                    alt={selectedCoin.name}
-                    width={24}
-                    height={24}
-                    className="rounded-full shrink-0"
-                  />
-                ) : (
-                  <div className="w-6 h-6 bg-gray-300 rounded-full shrink-0" />
-                )}
-                <span className="font-medium truncate">
-                  {selectedCoin.symbol.toUpperCase()}
-                </span>
-              </div>
-            ) : (
-              <span>Select Token</span>
-            )}
+            {coinType === "coin1"
+              ? coin1?.symbol || "Select Token"
+              : coin2?.symbol || "Select Token"}
             <ChevronDownIcon className="h-4 w-4 shrink-0" />
           </div>
         </Button>
@@ -216,13 +189,13 @@ const CoinSelect: React.FC<CoinSelectProps> = ({ coinType }) => {
           />
 
           {isLoading && <CoinLoadingSkeleton />}
-
           {error && (
             <div className="text-red-500 text-center py-4">{error}</div>
           )}
-
-          {!isLoading && !error && filteredCoins.length === 0 && (
-            <div className="text-center py-4">No coins found</div>
+          {!walletConnected && (
+            <div className="text-red-500 text-center py-4">
+              Wallet not connected. Connect your wallet to load custom tokens.
+            </div>
           )}
 
           {!isLoading && !error && filteredCoins.length > 0 && (

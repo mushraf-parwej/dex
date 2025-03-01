@@ -212,6 +212,7 @@ import {
 import { SwapConfirmation } from "./SwapConfirmation";
 import { SwapProgress } from "./SwapProgress";
 import { useCoinStore } from "@/store";
+import toast from "react-hot-toast";
 
 // Define a TypeScript interface for our form data
 interface SwapFormData {
@@ -279,6 +280,7 @@ const SwapComponent: FC = () => {
 
       if (!isFormValid) {
         setError("Please ensure all fields are filled correctly.");
+        toast.error("Please ensure all fields are filled correctly");
         return;
       }
 
@@ -331,6 +333,7 @@ const SwapComponent: FC = () => {
                     setIsSubmitted(true);
                   } catch (err) {
                     setError("Swap transaction failed. Please try again.");
+                    toast.error("Swap transaction failed. Please try again.");
                   }
                 }}
               />
