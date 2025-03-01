@@ -264,7 +264,7 @@ import {
   DialogTitle,
   DialogTrigger,
 } from "@/components/ui/dialog";
-// import { getCoinData } from "@/actions/coingecko/getCoinData.action"; // <-- No longer needed
+import { getCoinData } from "@/actions/coingecko/getCoinData.action";
 import { Button } from "../button";
 import { ScrollArea } from "../scroll-area";
 import { Input } from "../input";
@@ -311,8 +311,7 @@ const CoinLoadingSkeleton = () => (
 
 const CoinSelect: React.FC<CoinSelectProps> = ({ coinType }) => {
   const [isOpen, setIsOpen] = useState(false);
-  // Comment out CoinGecko part:
-  // const [coinData, setCoinData] = useState<Coin[]>([]);
+  const [coinData, setCoinData] = useState<Coin[]>([]);
   const [customTokens, setCustomTokens] = useState<Coin[]>([]);
   const [searchQuery, setSearchQuery] = useState("");
   const [isLoading, setIsLoading] = useState(false);
@@ -397,9 +396,8 @@ const CoinSelect: React.FC<CoinSelectProps> = ({ coinType }) => {
     fetchTokens();
   }, [fetchTokens]);
 
-  // Instead of merging coinData + customTokens, just use customTokens
-  // const allTokens = [...customTokens, ...coinData];
-  const allTokens = [...customTokens];
+  const allTokens = [...customTokens, ...coinData];
+  // const allTokens = [...customTokens];
 
   const filteredCoins = filterCoins(allTokens, searchQuery);
   const paginatedCoins = filteredCoins.slice(0, visibleCoins);
