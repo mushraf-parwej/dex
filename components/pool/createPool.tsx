@@ -17,7 +17,11 @@ const CreatePool = () => {
   const [loading, setLoading] = useState(false);
   const [txHash, setTxHash] = useState("");
   const [poolAddress, setPoolAddress] = useState("");
-
+  useEffect(() => {
+    if (fee) {
+      localStorage.setItem("feeTier", fee);
+    }
+  }, [fee]);
   // Check if pool exists whenever coin pair or fee changes.
   useEffect(() => {
     async function checkPool() {
