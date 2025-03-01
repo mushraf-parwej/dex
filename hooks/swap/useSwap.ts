@@ -64,8 +64,6 @@ export const useSwap = () => {
       await provider.send("eth_requestAccounts", []);
 
       const signer = await provider.getSigner();
-
-      // Replace with your actual SwapRouter address
       const swapRouterAddress = "0x10B1131a444595b4f3F6bDb56aB4C8aC6dDE35Be";
 
       const swapRouter = new ethers.Contract(
@@ -75,7 +73,7 @@ export const useSwap = () => {
       );
       const tokenIn = coin1.address;
       const tokenOut = coin2.address;
-      const fee = 3000; // 0.3% fee tier
+      const fee = 3000; // need to change this hardcode value
       const recipient = await signer.getAddress();
       const deadline = Math.floor(Date.now() / 1000) + 60 * 20;
       const amountIn = ethers.parseUnits(sellAmount, 6);
