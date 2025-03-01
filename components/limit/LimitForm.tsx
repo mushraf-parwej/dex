@@ -188,6 +188,7 @@ import dutchOrderReactorAbi from "../../lib/config/dutchOrderReactorAbi.json";
 // Import ethers and the UniswapX SDK components
 import { ethers } from "ethers";
 import { DutchOrderBuilder, NonceManager } from "@uniswap/uniswapx-sdk";
+import toast from "react-hot-toast";
 
 const options = ["1 day", "1 week", "1 Month", "1 Year"];
 const buttons = ["Market", "+1%", "+5%", "+10%"];
@@ -245,6 +246,7 @@ export default function LimitComponent() {
       e.preventDefault();
       if (!isFormValid) {
         setError("Please ensure all fields are filled correctly.");
+        toast.error("Please ensure all fields are filled correctly.");
         return;
       }
       setError(null);
@@ -316,6 +318,7 @@ export default function LimitComponent() {
       } catch (err: any) {
         console.error(err);
         setError(err.message || "Order submission failed");
+        toast.error("Order submission Failed");
       }
     },
     [isFormValid, expiry, sellAmount, buyAmount, coin1, coin2, address]

@@ -263,6 +263,7 @@ import {
   DialogTrigger,
 } from "@/components/ui/dialog";
 import { getCoinData } from "@/actions/coingecko/getCoinData.action";
+import { getPools } from "@/actions/pool/getPoolData.action"; // Moved API call to action
 import { Button } from "../button";
 import { ScrollArea } from "../scroll-area";
 import { useCoinStore } from "@/store";
@@ -270,6 +271,8 @@ import { ChevronDownIcon } from "@radix-ui/react-icons";
 import Image from "next/image";
 import { Skeleton } from "@/components/ui/skeleton";
 import { SearchInput } from "@/components/common/SearchBar";
+import { filterCoins } from "@/lib/utils/utils";
+import toast from "react-hot-toast";
 
 const ITEMS_PER_PAGE = 20;
 
@@ -280,6 +283,10 @@ export interface Coin {
   symbol: string;
   image: string;
   address: string;
+}
+
+interface CoinSelectProps {
+  coinType: "coin1" | "coin2";
 }
 
 const ERC20ABI = [
@@ -313,14 +320,16 @@ const CoinSelect: React.FC<CoinSelectProps> = ({ coinType }) => {
   const [searchQuery, setSearchQuery] = useState("");
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  const [visibleCoins, setVisibleCoins] = useState(ITEMS_PER_PAGE);
-  const observerRef = useRef<IntersectionObserver | null>(null);
-  const [cachedDataFetched, setCachedDataFetched] = useState(false);
-
+  const [walletConnected, setWalletConnected] = useState(false);
   const { coin1, coin2, setCoin1, setCoin2 } = useCoinStore();
+  const observerRef = useRef<IntersectionObserver | null>(null);
+  const [visibleCoins, setVisibleCoins] = useState(ITEMS_PER_PAGE);
 
+  // **Check if MetaMask is installed and wallet is connected**
+
+  // **Fetch Coins & Custom Tokens**
   const fetchTokens = useCallback(async () => {
-    if (!isOpen || cachedDataFetched) return;
+    if (!isOpen) return;
 
     try {
       setIsLoading(true);
@@ -342,6 +351,7 @@ const CoinSelect: React.FC<CoinSelectProps> = ({ coinType }) => {
         }));
       } else {
         setError("Invalid CoinGecko data format");
+        toast.error("Invalid CoinGecko Data");
       }
       setCoinData(coinsArray);
 
@@ -375,7 +385,11 @@ const CoinSelect: React.FC<CoinSelectProps> = ({ coinType }) => {
                   image: "", // You may set a custom icon URL here if available
                 };
               } catch (e) {
-                console.error("Failed to fetch token name for", tokenAddress, e);
+                console.error(
+                  "Failed to fetch token name for",
+                  tokenAddress,
+                  e
+                );
                 return {
                   name: tokenAddress,
                   symbol: "CUSTOM",
@@ -393,17 +407,17 @@ const CoinSelect: React.FC<CoinSelectProps> = ({ coinType }) => {
           console.error("No ethereum provider found.");
         }
       } else {
-        console.error("Error fetching pools");
+        setError("Failed to fetch pools");
+        toast.error("Failed to fetch pools");
       }
-
-      setCachedDataFetched(true);
     } catch (err) {
       console.error("Failed to fetch token data:", err);
       setError("Failed to fetch token data");
+      toast.error("Failed to fetch token data");
     } finally {
       setIsLoading(false);
     }
-  }, [isOpen, cachedDataFetched]);
+  }, [isOpen]);
 
   useEffect(() => {
     fetchTokens();
@@ -425,10 +439,7 @@ const CoinSelect: React.FC<CoinSelectProps> = ({ coinType }) => {
       if (observerRef.current) observerRef.current.disconnect();
 
       observerRef.current = new IntersectionObserver((entries) => {
-        if (
-          entries[0].isIntersecting &&
-          visibleCoins < filteredCoins.length
-        ) {
+        if (entries[0].isIntersecting && visibleCoins < filteredCoins.length) {
           setVisibleCoins((prev) => prev + ITEMS_PER_PAGE);
         }
       });
@@ -439,44 +450,18 @@ const CoinSelect: React.FC<CoinSelectProps> = ({ coinType }) => {
   );
 
   const handleSelectCoin = (coin: Coin) => {
-    if (coinType === "coin1") {
-      setCoin1(coin);
-    } else {
-      setCoin2(coin);
-    }
+    coinType === "coin1" ? setCoin1(coin) : setCoin2(coin);
     setIsOpen(false);
   };
-
-  const selectedCoin = coinType === "coin1" ? coin1 : coin2;
 
   return (
     <Dialog open={isOpen} onOpenChange={setIsOpen}>
       <DialogTrigger asChild>
-        <Button
-          className="border border-red hover:bg-red/10 transition-colors p-2.5 rounded-lg w-[160px] h-[44px]"
-          onClick={() => setIsOpen(true)}
-        >
+        <Button className="border border-red hover:bg-red/10 transition-colors p-2.5 rounded-lg w-[160px] h-[44px]">
           <div className="flex items-center justify-between w-full">
-            {selectedCoin ? (
-              <div className="flex items-center flex-1 min-w-0">
-                {selectedCoin.image ? (
-                  <Image
-                    src={selectedCoin.image}
-                    alt={selectedCoin.name}
-                    width={24}
-                    height={24}
-                    className="rounded-full shrink-0"
-                  />
-                ) : (
-                  <div className="w-6 h-6 bg-gray-300 rounded-full shrink-0" />
-                )}
-                <span className="font-medium truncate">
-                  {selectedCoin.symbol.toUpperCase()}
-                </span>
-              </div>
-            ) : (
-              <span>Select Token</span>
-            )}
+            {coinType === "coin1"
+              ? coin1?.symbol || "Select Token"
+              : coin2?.symbol || "Select Token"}
             <ChevronDownIcon className="h-4 w-4 shrink-0" />
           </div>
         </Button>
@@ -495,13 +480,8 @@ const CoinSelect: React.FC<CoinSelectProps> = ({ coinType }) => {
           />
 
           {isLoading && <CoinLoadingSkeleton />}
-
           {error && (
             <div className="text-red-500 text-center py-4">{error}</div>
-          )}
-
-          {!isLoading && !error && filteredCoins.length === 0 && (
-            <div className="text-center py-4">No coins found</div>
           )}
 
           {!isLoading && !error && filteredCoins.length > 0 && (
