@@ -10,15 +10,15 @@ import {
 import { getCoinData } from "@/actions/coingecko/getCoinData.action";
 import { Button } from "../button";
 import { ScrollArea } from "../scroll-area";
-import { Input } from "../input";
 import { useCoinStore } from "@/store";
-import { ChevronDownIcon, MagnifyingGlassIcon } from "@radix-ui/react-icons";
+import { ChevronDownIcon } from "@radix-ui/react-icons";
 import Image from "next/image";
 import { Skeleton } from "@/components/ui/skeleton";
 import { SearchInput } from "@/components/common/SearchBar";
-import { filterCoins } from "@/lib/utils/utils";
 
 const ITEMS_PER_PAGE = 20;
+
+// Updated interface: address is required.
 export interface Coin {
   id: string;
   name: string;
@@ -27,9 +27,6 @@ export interface Coin {
   address: string;
 }
 
-interface CoinSelectProps {
-  coinType: "coin1" | "coin2";
-}
 const ERC20ABI = [
   "function name() view returns (string)",
   "function balanceOf(address) view returns (uint256)",
@@ -49,6 +46,10 @@ const CoinLoadingSkeleton = () => (
     ))}
   </ScrollArea>
 );
+
+interface CoinSelectProps {
+  coinType: "coin1" | "coin2";
+}
 
 const CoinSelect: React.FC<CoinSelectProps> = ({ coinType }) => {
   const [isOpen, setIsOpen] = useState(false);
@@ -70,77 +71,95 @@ const CoinSelect: React.FC<CoinSelectProps> = ({ coinType }) => {
       setIsLoading(true);
       setError(null);
 
-      // Fetch CoinGecko tokens
+      // Fetch tokens from CoinGecko
       const coinGeckoData = await getCoinData();
+      let coinsArray: Coin[] = [];
       if (Array.isArray(coinGeckoData)) {
-        setCoinData(coinGeckoData);
+        coinsArray = coinGeckoData.map((coin: any) => ({
+          ...coin,
+          address: coin.address ? coin.address : coin.id,
+        }));
+      } else if (coinGeckoData?.coins && Array.isArray(coinGeckoData.coins)) {
+        coinsArray = coinGeckoData.coins.map((coin: any) => ({
+          ...coin,
+          address: coin.address ? coin.address : coin.id,
+        }));
       } else {
         setError("Invalid CoinGecko data format");
       }
+      setCoinData(coinsArray);
 
-      // Fetch Custom Tokens from MongoDB
+      // Fetch custom tokens from MongoDB
       const res = await fetch("/api/pools");
       const poolData = await res.json();
       if (Array.isArray(poolData)) {
         const uniqueTokenAddresses = new Set<string>();
-        poolData.forEach((pool) => {
-          uniqueTokenAddresses.add(pool.token0);
-          uniqueTokenAddresses.add(pool.token1);
+        poolData.forEach((pool: any) => {
+          if (pool.token0) uniqueTokenAddresses.add(pool.token0);
+          if (pool.token1) uniqueTokenAddresses.add(pool.token1);
         });
 
-        const provider = new ethers.BrowserProvider(window.ethereum);
+        if (typeof window !== "undefined" && window.ethereum) {
+          const provider = new ethers.BrowserProvider(window.ethereum);
 
-        const tokenPromises = Array.from(uniqueTokenAddresses).map(
-          async (tokenAddress) => {
-            try {
-              const tokenContract = new ethers.Contract(
-                tokenAddress,
-                ERC20ABI,
-                provider
-              );
-              const tokenName = await tokenContract.name();
-              return {
-                name: tokenName,
-                symbol: "CUSTOM",
-                address: tokenAddress,
-                id: tokenAddress,
-                image: "",
-              };
-            } catch (e) {
-              console.error("Failed to fetch token name for", tokenAddress, e);
-              return {
-                name: tokenAddress,
-                symbol: "CUSTOM",
-                address: tokenAddress,
-                id: tokenAddress,
-                image: "",
-              };
+          const tokenPromises = Array.from(uniqueTokenAddresses).map(
+            async (tokenAddress) => {
+              try {
+                const tokenContract = new ethers.Contract(
+                  tokenAddress,
+                  ERC20ABI,
+                  provider
+                );
+                const tokenName = await tokenContract.name();
+                return {
+                  name: tokenName,
+                  symbol: "CUSTOM",
+                  address: tokenAddress,
+                  id: tokenAddress,
+                  image: "", 
+                };
+              } catch (e) {
+                console.error("Failed to fetch token name for", tokenAddress, e);
+                return {
+                  name: tokenAddress,
+                  symbol: "CUSTOM",
+                  address: tokenAddress,
+                  id: tokenAddress,
+                  image: "",
+                };
+              }
             }
-          }
-        );
+          );
 
-        const tokens = await Promise.all(tokenPromises);
-        setCustomTokens(tokens);
+          const tokens = await Promise.all(tokenPromises);
+          setCustomTokens(tokens);
+        } else {
+          console.error("No ethereum provider found.");
+        }
       } else {
         console.error("Error fetching pools");
       }
 
-      setCachedDataFetched(true); // Mark data as fetched
+      setCachedDataFetched(true);
     } catch (err) {
+      console.error("Failed to fetch token data:", err);
       setError("Failed to fetch token data");
     } finally {
       setIsLoading(false);
     }
-  }, [isOpen, cachedDataFetched]); // Dependencies for stability
+  }, [isOpen, cachedDataFetched]);
 
   useEffect(() => {
     fetchTokens();
   }, [fetchTokens]);
 
   const allTokens = [...customTokens, ...coinData];
-
-  const filteredCoins = filterCoins(allTokens, searchQuery);
-
+//search query simpl
+  const filteredCoins = allTokens.filter(
+    (coin) =>
+      coin.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      coin.symbol.toLowerCase().includes(searchQuery.toLowerCase())
+  );
   const paginatedCoins = filteredCoins.slice(0, visibleCoins);
 
   const lastCoinRef = useCallback(
@@ -149,7 +168,10 @@ const CoinSelect: React.FC<CoinSelectProps> = ({ coinType }) => {
       if (observerRef.current) observerRef.current.disconnect();
 
       observerRef.current = new IntersectionObserver((entries) => {
-        if (entries[0].isIntersecting && visibleCoins < filteredCoins.length) {
+        if (
+          entries[0].isIntersecting &&
+          visibleCoins < filteredCoins.length
+        ) {
           setVisibleCoins((prev) => prev + ITEMS_PER_PAGE);
         }
       });
@@ -159,11 +181,11 @@ const CoinSelect: React.FC<CoinSelectProps> = ({ coinType }) => {
     [isLoading, visibleCoins, filteredCoins.length]
   );
 
-  const handleSelectCoin = (Coin) => {
+  const handleSelectCoin = (coin: Coin) => {
     if (coinType === "coin1") {
-      setCoin1(Coin);
+      setCoin1(coin);
     } else {
-      setCoin2(Coin);
+      setCoin2(coin);
     }
     setIsOpen(false);
   };
@@ -230,10 +252,22 @@ const CoinSelect: React.FC<CoinSelectProps> = ({ coinType }) => {
               {paginatedCoins.map((coin, index) => (
                 <div
                   key={coin.id || index}
-                  className="p-2 border-b cursor-pointer flex flex-row items-center space-x-2 hover:bg-neutral-100 dark:hover:bg-neutral-800 transition-colors"
+                  className="p-2 border-b cursor-pointer flex items-center space-x-2 hover:bg-neutral-100 dark:hover:bg-neutral-800 transition-colors"
                   onClick={() => handleSelectCoin(coin)}
                   ref={index === paginatedCoins.length - 1 ? lastCoinRef : null}
                 >
+                  {/* Rendering the coin's icon if available */}
+                  {coin.image ? (
+                    <Image
+                      src={coin.image}
+                      alt={coin.name}
+                      width={24}
+                      height={24}
+                      className="rounded-full shrink-0"
+                    />
+                  ) : (
+                    <div className="w-6 h-6 bg-gray-300 rounded-full shrink-0" />
+                  )}
                   <p>{coin.name}</p>
                   <span className="text-sm text-neutral-500 ml-auto">
                     {coin.symbol.toUpperCase()}
