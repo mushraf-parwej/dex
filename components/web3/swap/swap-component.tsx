@@ -173,7 +173,7 @@
 //                 </Accordion>
 
 //                 {error && (
-//                   <div className="text-red-500 text-sm mt-2" role="alert">
+//                   <div className="text-red-500 text-sm mt-2" role="toast.error">
 //                     {error}
 //                   </div>
 //                 )}
@@ -384,7 +384,7 @@ const SwapComponent: FC = () => {
                 </Accordion>
 
                 {error && (
-                  <div className="text-red-500 text-sm mt-2" role="alert">
+                  <div className="text-red-500 text-sm mt-2" role="toast.error">
                     {error}
                   </div>
                 )}
