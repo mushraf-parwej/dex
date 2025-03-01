@@ -39,9 +39,19 @@ export default function BuyForm() {
             </span>
           </div>
         </div>
-
         <form onSubmit={handleSubmit}>
           <div className="w-full rounded-xl p-4 bg-[#E0E0E04D] flex flex-col gap-4">
+            <div className="flex justify-between items-center">
+              {coin1 && (
+                <div>
+                  <span className="text-sm text-neutral-700">When 1 </span>
+                  <span className="font-semibold text-neutral-800">
+                    {coin1.symbol}{" "}
+                    <span className="font-normal"> is worth</span>
+                  </span>
+                </div>
+              )}
+            </div>
             <div className="flex justify-between items-center">
               <Input
                 value={limitPrice}
