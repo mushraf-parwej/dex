@@ -26,7 +26,7 @@ const ERC20ABI = [
 ];
 
 const NONFUNGIBLE_POSITION_MANAGER_ADDRESS =
-  "0xa2bcBce9B2727CAd75ec42bFf76a6d85DA129B9C"; //0x84C9bfD0c3B31d770eD386A332Dd9dFE26464bCD
+  "0x5610EDc4FFf83CD27005C8fac3cFAc41396A759B"; //0x84C9bfD0c3B31d770eD386A332Dd9dFE26464bCD
 const chainId = 11155111;
 
 const DepositAmount = () => {
@@ -149,12 +149,15 @@ const DepositAmount = () => {
       // Convert tick from BigInt to number if necessary.
       const currentTick =
         typeof data.tick === "bigint" ? Number(data.tick) : data.tick;
-
+      const feeTierFromStorage = localStorage.getItem("feeTier");
+      const feeTier = feeTierFromStorage
+        ? parseInt(feeTierFromStorage, 10)
+        : FeeAmount.MEDIUM;
       // Create a Pool instance using the fee returned on-chain.
       const poolInstance = new Pool(
         TokenA,
         TokenB,
-        FeeAmount.MEDIUM, // Alternatively, you can use data.fee if you prefer.
+        feeTier,
         data.sqrtPriceX96,
         data.liquidity,
         currentTick

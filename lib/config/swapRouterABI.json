@@ -1,16 +1,8 @@
 [
   {
     "inputs": [
-      {
-        "internalType": "address",
-        "name": "_factory",
-        "type": "address"
-      },
-      {
-        "internalType": "address",
-        "name": "_WETH9",
-        "type": "address"
-      }
+      { "internalType": "address", "name": "_factory", "type": "address" },
+      { "internalType": "address", "name": "_WETH9", "type": "address" }
     ],
     "stateMutability": "nonpayable",
     "type": "constructor"
@@ -18,13 +10,7 @@
   {
     "inputs": [],
     "name": "WETH9",
-    "outputs": [
-      {
-        "internalType": "address",
-        "name": "",
-        "type": "address"
-      }
-    ],
+    "outputs": [{ "internalType": "address", "name": "", "type": "address" }],
     "stateMutability": "view",
     "type": "function"
   },
@@ -32,26 +18,10 @@
     "inputs": [
       {
         "components": [
-          {
-            "internalType": "bytes",
-            "name": "path",
-            "type": "bytes"
-          },
-          {
-            "internalType": "address",
-            "name": "recipient",
-            "type": "address"
-          },
-          {
-            "internalType": "uint256",
-            "name": "deadline",
-            "type": "uint256"
-          },
-          {
-            "internalType": "uint256",
-            "name": "amountIn",
-            "type": "uint256"
-          },
+          { "internalType": "bytes", "name": "path", "type": "bytes" },
+          { "internalType": "address", "name": "recipient", "type": "address" },
+          { "internalType": "uint256", "name": "deadline", "type": "uint256" },
+          { "internalType": "uint256", "name": "amountIn", "type": "uint256" },
           {
             "internalType": "uint256",
             "name": "amountOutMinimum",
@@ -65,11 +35,7 @@
     ],
     "name": "exactInput",
     "outputs": [
-      {
-        "internalType": "uint256",
-        "name": "amountOut",
-        "type": "uint256"
-      }
+      { "internalType": "uint256", "name": "amountOut", "type": "uint256" }
     ],
     "stateMutability": "payable",
     "type": "function"
@@ -78,36 +44,12 @@
     "inputs": [
       {
         "components": [
-          {
-            "internalType": "address",
-            "name": "tokenIn",
-            "type": "address"
-          },
-          {
-            "internalType": "address",
-            "name": "tokenOut",
-            "type": "address"
-          },
-          {
-            "internalType": "uint24",
-            "name": "fee",
-            "type": "uint24"
-          },
-          {
-            "internalType": "address",
-            "name": "recipient",
-            "type": "address"
-          },
-          {
-            "internalType": "uint256",
-            "name": "deadline",
-            "type": "uint256"
-          },
-          {
-            "internalType": "uint256",
-            "name": "amountIn",
-            "type": "uint256"
-          },
+          { "internalType": "address", "name": "tokenIn", "type": "address" },
+          { "internalType": "address", "name": "tokenOut", "type": "address" },
+          { "internalType": "uint24", "name": "fee", "type": "uint24" },
+          { "internalType": "address", "name": "recipient", "type": "address" },
+          { "internalType": "uint256", "name": "deadline", "type": "uint256" },
+          { "internalType": "uint256", "name": "amountIn", "type": "uint256" },
           {
             "internalType": "uint256",
             "name": "amountOutMinimum",
@@ -126,11 +68,7 @@
     ],
     "name": "exactInputSingle",
     "outputs": [
-      {
-        "internalType": "uint256",
-        "name": "amountOut",
-        "type": "uint256"
-      }
+      { "internalType": "uint256", "name": "amountOut", "type": "uint256" }
     ],
     "stateMutability": "payable",
     "type": "function"
@@ -139,26 +77,10 @@
     "inputs": [
       {
         "components": [
-          {
-            "internalType": "bytes",
-            "name": "path",
-            "type": "bytes"
-          },
-          {
-            "internalType": "address",
-            "name": "recipient",
-            "type": "address"
-          },
-          {
-            "internalType": "uint256",
-            "name": "deadline",
-            "type": "uint256"
-          },
-          {
-            "internalType": "uint256",
-            "name": "amountOut",
-            "type": "uint256"
-          },
+          { "internalType": "bytes", "name": "path", "type": "bytes" },
+          { "internalType": "address", "name": "recipient", "type": "address" },
+          { "internalType": "uint256", "name": "deadline", "type": "uint256" },
+          { "internalType": "uint256", "name": "amountOut", "type": "uint256" },
           {
             "internalType": "uint256",
             "name": "amountInMaximum",
@@ -172,11 +94,7 @@
     ],
     "name": "exactOutput",
     "outputs": [
-      {
-        "internalType": "uint256",
-        "name": "amountIn",
-        "type": "uint256"
-      }
+      { "internalType": "uint256", "name": "amountIn", "type": "uint256" }
     ],
     "stateMutability": "payable",
     "type": "function"
@@ -185,36 +103,12 @@
     "inputs": [
       {
         "components": [
-          {
-            "internalType": "address",
-            "name": "tokenIn",
-            "type": "address"
-          },
-          {
-            "internalType": "address",
-            "name": "tokenOut",
-            "type": "address"
-          },
-          {
-            "internalType": "uint24",
-            "name": "fee",
-            "type": "uint24"
-          },
-          {
-            "internalType": "address",
-            "name": "recipient",
-            "type": "address"
-          },
-          {
-            "internalType": "uint256",
-            "name": "deadline",
-            "type": "uint256"
-          },
-          {
-            "internalType": "uint256",
-            "name": "amountOut",
-            "type": "uint256"
-          },
+          { "internalType": "address", "name": "tokenIn", "type": "address" },
+          { "internalType": "address", "name": "tokenOut", "type": "address" },
+          { "internalType": "uint24", "name": "fee", "type": "uint24" },
+          { "internalType": "address", "name": "recipient", "type": "address" },
+          { "internalType": "uint256", "name": "deadline", "type": "uint256" },
+          { "internalType": "uint256", "name": "amountOut", "type": "uint256" },
           {
             "internalType": "uint256",
             "name": "amountInMaximum",
@@ -233,11 +127,7 @@
     ],
     "name": "exactOutputSingle",
     "outputs": [
-      {
-        "internalType": "uint256",
-        "name": "amountIn",
-        "type": "uint256"
-      }
+      { "internalType": "uint256", "name": "amountIn", "type": "uint256" }
     ],
     "stateMutability": "payable",
     "type": "function"
@@ -245,31 +135,17 @@
   {
     "inputs": [],
     "name": "factory",
-    "outputs": [
-      {
-        "internalType": "address",
-        "name": "",
-        "type": "address"
-      }
-    ],
+    "outputs": [{ "internalType": "address", "name": "", "type": "address" }],
     "stateMutability": "view",
     "type": "function"
   },
   {
     "inputs": [
-      {
-        "internalType": "bytes[]",
-        "name": "data",
-        "type": "bytes[]"
-      }
+      { "internalType": "bytes[]", "name": "data", "type": "bytes[]" }
     ],
     "name": "multicall",
     "outputs": [
-      {
-        "internalType": "bytes[]",
-        "name": "results",
-        "type": "bytes[]"
-      }
+      { "internalType": "bytes[]", "name": "results", "type": "bytes[]" }
     ],
     "stateMutability": "payable",
     "type": "function"
@@ -283,36 +159,12 @@
   },
   {
     "inputs": [
-      {
-        "internalType": "address",
-        "name": "token",
-        "type": "address"
-      },
-      {
-        "internalType": "uint256",
-        "name": "value",
-        "type": "uint256"
-      },
-      {
-        "internalType": "uint256",
-        "name": "deadline",
-        "type": "uint256"
-      },
-      {
-        "internalType": "uint8",
-        "name": "v",
-        "type": "uint8"
-      },
-      {
-        "internalType": "bytes32",
-        "name": "r",
-        "type": "bytes32"
-      },
-      {
-        "internalType": "bytes32",
-        "name": "s",
-        "type": "bytes32"
-      }
+      { "internalType": "address", "name": "token", "type": "address" },
+      { "internalType": "uint256", "name": "value", "type": "uint256" },
+      { "internalType": "uint256", "name": "deadline", "type": "uint256" },
+      { "internalType": "uint8", "name": "v", "type": "uint8" },
+      { "internalType": "bytes32", "name": "r", "type": "bytes32" },
+      { "internalType": "bytes32", "name": "s", "type": "bytes32" }
     ],
     "name": "selfPermit",
     "outputs": [],
@@ -321,36 +173,12 @@
   },
   {
     "inputs": [
-      {
-        "internalType": "address",
-        "name": "token",
-        "type": "address"
-      },
-      {
-        "internalType": "uint256",
-        "name": "nonce",
-        "type": "uint256"
-      },
-      {
-        "internalType": "uint256",
-        "name": "expiry",
-        "type": "uint256"
-      },
-      {
-        "internalType": "uint8",
-        "name": "v",
-        "type": "uint8"
-      },
-      {
-        "internalType": "bytes32",
-        "name": "r",
-        "type": "bytes32"
-      },
-      {
-        "internalType": "bytes32",
-        "name": "s",
-        "type": "bytes32"
-      }
+      { "internalType": "address", "name": "token", "type": "address" },
+      { "internalType": "uint256", "name": "nonce", "type": "uint256" },
+      { "internalType": "uint256", "name": "expiry", "type": "uint256" },
+      { "internalType": "uint8", "name": "v", "type": "uint8" },
+      { "internalType": "bytes32", "name": "r", "type": "bytes32" },
+      { "internalType": "bytes32", "name": "s", "type": "bytes32" }
     ],
     "name": "selfPermitAllowed",
     "outputs": [],
@@ -359,36 +187,12 @@
   },
   {
     "inputs": [
-      {
-        "internalType": "address",
-        "name": "token",
-        "type": "address"
-      },
-      {
-        "internalType": "uint256",
-        "name": "nonce",
-        "type": "uint256"
-      },
-      {
-        "internalType": "uint256",
-        "name": "expiry",
-        "type": "uint256"
-      },
-      {
-        "internalType": "uint8",
-        "name": "v",
-        "type": "uint8"
-      },
-      {
-        "internalType": "bytes32",
-        "name": "r",
-        "type": "bytes32"
-      },
-      {
-        "internalType": "bytes32",
-        "name": "s",
-        "type": "bytes32"
-      }
+      { "internalType": "address", "name": "token", "type": "address" },
+      { "internalType": "uint256", "name": "nonce", "type": "uint256" },
+      { "internalType": "uint256", "name": "expiry", "type": "uint256" },
+      { "internalType": "uint8", "name": "v", "type": "uint8" },
+      { "internalType": "bytes32", "name": "r", "type": "bytes32" },
+      { "internalType": "bytes32", "name": "s", "type": "bytes32" }
     ],
     "name": "selfPermitAllowedIfNecessary",
     "outputs": [],
@@ -397,36 +201,12 @@
   },
   {
     "inputs": [
-      {
-        "internalType": "address",
-        "name": "token",
-        "type": "address"
-      },
-      {
-        "internalType": "uint256",
-        "name": "value",
-        "type": "uint256"
-      },
-      {
-        "internalType": "uint256",
-        "name": "deadline",
-        "type": "uint256"
-      },
-      {
-        "internalType": "uint8",
-        "name": "v",
-        "type": "uint8"
-      },
-      {
-        "internalType": "bytes32",
-        "name": "r",
-        "type": "bytes32"
-      },
-      {
-        "internalType": "bytes32",
-        "name": "s",
-        "type": "bytes32"
-      }
+      { "internalType": "address", "name": "token", "type": "address" },
+      { "internalType": "uint256", "name": "value", "type": "uint256" },
+      { "internalType": "uint256", "name": "deadline", "type": "uint256" },
+      { "internalType": "uint8", "name": "v", "type": "uint8" },
+      { "internalType": "bytes32", "name": "r", "type": "bytes32" },
+      { "internalType": "bytes32", "name": "s", "type": "bytes32" }
     ],
     "name": "selfPermitIfNecessary",
     "outputs": [],
@@ -435,21 +215,9 @@
   },
   {
     "inputs": [
-      {
-        "internalType": "address",
-        "name": "token",
-        "type": "address"
-      },
-      {
-        "internalType": "uint256",
-        "name": "amountMinimum",
-        "type": "uint256"
-      },
-      {
-        "internalType": "address",
-        "name": "recipient",
-        "type": "address"
-      }
+      { "internalType": "address", "name": "token", "type": "address" },
+      { "internalType": "uint256", "name": "amountMinimum", "type": "uint256" },
+      { "internalType": "address", "name": "recipient", "type": "address" }
     ],
     "name": "sweepToken",
     "outputs": [],
@@ -458,31 +226,11 @@
   },
   {
     "inputs": [
-      {
-        "internalType": "address",
-        "name": "token",
-        "type": "address"
-      },
-      {
-        "internalType": "uint256",
-        "name": "amountMinimum",
-        "type": "uint256"
-      },
-      {
-        "internalType": "address",
-        "name": "recipient",
-        "type": "address"
-      },
-      {
-        "internalType": "uint256",
-        "name": "feeBips",
-        "type": "uint256"
-      },
-      {
-        "internalType": "address",
-        "name": "feeRecipient",
-        "type": "address"
-      }
+      { "internalType": "address", "name": "token", "type": "address" },
+      { "internalType": "uint256", "name": "amountMinimum", "type": "uint256" },
+      { "internalType": "address", "name": "recipient", "type": "address" },
+      { "internalType": "uint256", "name": "feeBips", "type": "uint256" },
+      { "internalType": "address", "name": "feeRecipient", "type": "address" }
     ],
     "name": "sweepTokenWithFee",
     "outputs": [],
@@ -491,21 +239,9 @@
   },
   {
     "inputs": [
-      {
-        "internalType": "int256",
-        "name": "amount0Delta",
-        "type": "int256"
-      },
-      {
-        "internalType": "int256",
-        "name": "amount1Delta",
-        "type": "int256"
-      },
-      {
-        "internalType": "bytes",
-        "name": "_data",
-        "type": "bytes"
-      }
+      { "internalType": "int256", "name": "amount0Delta", "type": "int256" },
+      { "internalType": "int256", "name": "amount1Delta", "type": "int256" },
+      { "internalType": "bytes", "name": "_data", "type": "bytes" }
     ],
     "name": "uniswapV3SwapCallback",
     "outputs": [],
@@ -514,16 +250,8 @@
   },
   {
     "inputs": [
-      {
-        "internalType": "uint256",
-        "name": "amountMinimum",
-        "type": "uint256"
-      },
-      {
-        "internalType": "address",
-        "name": "recipient",
-        "type": "address"
-      }
+      { "internalType": "uint256", "name": "amountMinimum", "type": "uint256" },
+      { "internalType": "address", "name": "recipient", "type": "address" }
     ],
     "name": "unwrapWETH9",
     "outputs": [],
@@ -532,34 +260,15 @@
   },
   {
     "inputs": [
-      {
-        "internalType": "uint256",
-        "name": "amountMinimum",
-        "type": "uint256"
-      },
-      {
-        "internalType": "address",
-        "name": "recipient",
-        "type": "address"
-      },
-      {
-        "internalType": "uint256",
-        "name": "feeBips",
-        "type": "uint256"
-      },
-      {
-        "internalType": "address",
-        "name": "feeRecipient",
-        "type": "address"
-      }
+      { "internalType": "uint256", "name": "amountMinimum", "type": "uint256" },
+      { "internalType": "address", "name": "recipient", "type": "address" },
+      { "internalType": "uint256", "name": "feeBips", "type": "uint256" },
+      { "internalType": "address", "name": "feeRecipient", "type": "address" }
     ],
     "name": "unwrapWETH9WithFee",
     "outputs": [],
     "stateMutability": "payable",
     "type": "function"
   },
-  {
-    "stateMutability": "payable",
-    "type": "receive"
-  }
+  { "stateMutability": "payable", "type": "receive" }
 ]
