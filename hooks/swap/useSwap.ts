@@ -86,11 +86,8 @@ export const useSwap = () => {
       const recipient = await signer.getAddress();
       const deadline = Math.floor(Date.now() / 1000) + 60 * 20;
       const amountIn = ethers.parseUnits(sellAmount, 6);
-      const amountOutMinimum = ethers.parseUnits(
-        (Number(buyAmount) * 0.5).toString(),
-        6
-      );
-      const sqrtPriceLimitX96 = "79228162514264337593543950336";
+      const amountOutMinimum = 0;
+      const sqrtPriceLimitX96 = 0;
 
       const params = {
         tokenIn,
