@@ -175,6 +175,12 @@ import { useState, useCallback, useEffect } from "react";
 import { ethers } from "ethers";
 import { useAccount } from "wagmi";
 import { DutchOrderBuilder, NonceManager } from "@uniswap/uniswapx-sdk";
+import {
+  AllowanceProvider,
+  AllowanceTransfer,
+  MaxAllowanceTransferAmount,
+  PermitSingle,
+} from "@uniswap/permit2-sdk";
 import dutchOrderReactorAbi from "../../lib/config/dutchOrderReactorAbi.json";
 import { useSwap } from "@/hooks/swap/useSwap";
 import { useCoinStore } from "@/store";
@@ -186,8 +192,13 @@ import { SwapButton } from "../web3/swap/SwapButton";
 const options = ["1 day", "1 week", "1 Month", "1 Year"];
 const buttons = ["Market", "+1%", "+5%", "+10%"];
 
-  const DUTCH_ORDER_REACTOR_ADDRESS ="0x453C0545a2B8AA9DEb8A552b33A74b75f4DFD8D2";
-  const PERMIT2_ADDRESS = "0xC348b507B1f826f7A020a0709545566508D40fc4";
+const DUTCH_ORDER_REACTOR_ADDRESS =
+  "0x453C0545a2B8AA9DEb8A552b33A74b75f4DFD8D2";
+
+const PERMIT2_ADDRESS_CUSTOM = "0xC348b507B1f826f7A020a0709545566508D40fc4";
+
+const PERMIT_EXPIRATION = 30 * 24 * 60 * 60 * 1000; // 30 days in milliseconds
+const PERMIT_SIG_EXPIRATION = 30 * 60 * 1000; // 30 minutes in milliseconds
 
 const expiryDurations: Record<string, number> = {
   "1 day": 86400,
@@ -195,6 +206,10 @@ const expiryDurations: Record<string, number> = {
   "1 Month": 2592000,
   "1 Year": 31536000,
 };
+
+function toDeadline(expiration: number): number {
+  return Math.floor((Date.now() + expiration) / 1000);
+}
 
 export default function LimitComponent() {
   const [expiry, setExpiry] = useState("1 day");
@@ -225,27 +240,47 @@ export default function LimitComponent() {
       address
   );
 
-  // Approve tokens using Permit2
-  const approveTokensForPermit2 = async (tokenAddress: string) => {
-    try {
-      const provider = new ethers.BrowserProvider(window.ethereum);
-      const signer = await provider.getSigner();
-      const tokenContract = new ethers.Contract(
-        tokenAddress,
-        ["function approve(address spender, uint256 amount) returns (bool)"],
-        signer
-      );
-      const tx = await tokenContract.approve(
-        PERMIT2_ADDRESS,
-        ethers.MaxUint256
-      );
-      await tx.wait();
-      return true;
-    } catch (error) {
-      console.error("Approval error:", error);
-      setError("Token approval failed.");
-      return false;
-    }
+  // Function to get Permit2 signature
+  const getPermit2Signature = async (
+    tokenAddress: string,
+    spenderAddress: string
+  ) => {
+    if (!window.ethereum) throw new Error("Install MetaMask!");
+    const provider = new ethers.BrowserProvider(window.ethereum) as unknown as ethers.providers.Provider;
+    const signer = await provider.getSigner();
+    const network = await provider.getNetwork();
+    const chainId = Number(network.chainId);
+
+    const allowanceProvider = new AllowanceProvider(
+      provider,
+      PERMIT2_ADDRESS_CUSTOM  
+    );
+
+    const { nonce } = await allowanceProvider.getAllowanceData(
+      address!,
+      tokenAddress,
+      spenderAddress
+    );
+
+    const permitSingle: PermitSingle = {
+      details: {
+        token: tokenAddress,
+        amount: MaxAllowanceTransferAmount,
+        expiration: toDeadline(PERMIT_EXPIRATION),
+        nonce,
+      },
+      spender: spenderAddress,
+      sigDeadline: toDeadline(PERMIT_SIG_EXPIRATION),
+    };
+
+    const { domain, types, values } = AllowanceTransfer.getPermitData(
+      permitSingle,
+      PERMIT2_ADDRESS_CUSTOM,
+      chainId
+    );
+
+    const signature = await signer._signTypedData(domain, types, values);
+    return { permitSingle, signature };
   };
 
   // Fetch user orders
@@ -289,10 +324,13 @@ export default function LimitComponent() {
       try {
         if (!window.ethereum) throw new Error("Install MetaMask!");
 
-        if (!(await approveTokensForPermit2(String(coin1)))) return;
-
         const provider = new ethers.BrowserProvider(window.ethereum);
         const signer = await provider.getSigner();
+
+        // Get Permit2 data and signature
+        const spenderAddress = DUTCH_ORDER_REACTOR_ADDRESS; // Address of DutchOrderReactor
+        const { permitSingle, signature: permit2Signature } =
+          await getPermit2Signature(String(coin1), spenderAddress);
 
         const now = Math.floor(Date.now() / 1000);
         const deadline = now + expiryDurations[expiry];
@@ -405,4 +443,3 @@ export default function LimitComponent() {
     </main>
   );
 }
-
