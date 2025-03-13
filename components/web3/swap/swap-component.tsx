@@ -173,7 +173,7 @@
 //                 </Accordion>
 
 //                 {error && (
-//                   <div className="text-red-500 text-sm mt-2" role="alert">
+//                   <div className="text-red-500 text-sm mt-2" role="toast.error">
 //                     {error}
 //                   </div>
 //                 )}
@@ -212,6 +212,7 @@ import {
 import { SwapConfirmation } from "./SwapConfirmation";
 import { SwapProgress } from "./SwapProgress";
 import { useCoinStore } from "@/store";
+import toast from "react-hot-toast";
 
 // Define a TypeScript interface for our form data
 interface SwapFormData {
@@ -257,6 +258,9 @@ const SwapComponent: FC = () => {
     handleBuyAmountChange,
     handleSwap,
     executeSwapTransaction,
+    steps,
+    currentStep,
+    isCompleted,
   } = useSwap();
 
   // Validate the form data
@@ -276,6 +280,7 @@ const SwapComponent: FC = () => {
 
       if (!isFormValid) {
         setError("Please ensure all fields are filled correctly.");
+        toast.error("Please ensure all fields are filled correctly");
         return;
       }
 
@@ -307,6 +312,8 @@ const SwapComponent: FC = () => {
                 setShowConfirmation(false);
               }}
               steps={steps}
+              currentStep={currentStep}
+              isCompleted={isCompleted}
             />
           ) : showConfirmation ? (
             <motion.div
@@ -326,6 +333,7 @@ const SwapComponent: FC = () => {
                     setIsSubmitted(true);
                   } catch (err) {
                     setError("Swap transaction failed. Please try again.");
+                    toast.error("Swap transaction failed. Please try again.");
                   }
                 }}
               />
@@ -376,7 +384,7 @@ const SwapComponent: FC = () => {
                 </Accordion>
 
                 {error && (
-                  <div className="text-red-500 text-sm mt-2" role="alert">
+                  <div className="text-red-500 text-sm mt-2" role="toast.error">
                     {error}
                   </div>
                 )}

@@ -36,13 +36,22 @@ export const useSwap = () => {
   const [sellAmount, setSellAmount] = useState("");
   const [buyAmount, setBuyAmount] = useState("");
   const { coin1, coin2, setCoin1, setCoin2 } = useCoinStore();
-
+  const [currentStep, setCurrentStep] = useState(0);
+  const [isCompleted, setIsCompleted] = useState(false);
   const handleSellAmountChange = (value: string) => setSellAmount(value);
   const handleBuyAmountChange = (value: string) => setBuyAmount(value);
   const ERC20ABI = [
     "function balanceOf(address) view returns (uint256)",
     "function approve(address spender, uint256 amount) returns (bool)",
     "function allowance(address owner, address spender) view returns (uint256)",
+  ];
+  const steps = [
+    { label: "Approval", description: "Approving token transfer" },
+    {
+      label: "Transaction Submission",
+      description: "Submitting transaction",
+    },
+    { label: "Confirmation", description: "Transaction confirmed" },
   ];
 
   const handleSwap = () => {
@@ -77,11 +86,8 @@ export const useSwap = () => {
       const recipient = await signer.getAddress();
       const deadline = Math.floor(Date.now() / 1000) + 60 * 20;
       const amountIn = ethers.parseUnits(sellAmount, 6);
-      const amountOutMinimum = ethers.parseUnits(
-        (Number(buyAmount) * 0.5).toString(),
-        6
-      );
-      const sqrtPriceLimitX96 = "79228162514264337593543950336";
+      const amountOutMinimum = 0;
+      const sqrtPriceLimitX96 = 0;
 
       const params = {
         tokenIn,
@@ -110,8 +116,11 @@ export const useSwap = () => {
       console.log("Token approval confirmed");
       const tx = await swapRouter.exactInputSingle(params, { value: 0 });
       console.log("Transaction submitted:", tx.hash);
+      setCurrentStep(2);
       const receipt = await tx.wait();
       console.log("Transaction confirmed:", receipt);
+      setCurrentStep(3);
+      setIsCompleted(true);
       return receipt;
     } catch (error) {
       console.error("Swap transaction failed:", error);
@@ -126,5 +135,8 @@ export const useSwap = () => {
     handleBuyAmountChange,
     handleSwap,
     executeSwapTransaction,
+    steps,
+    currentStep,
+    isCompleted,
   };
 };

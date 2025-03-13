@@ -28,7 +28,7 @@ const CreatePool = () => {
       if (coin1 && coin2 && fee) {
         try {
           const response = await fetch(
-            `/api/pools?token0=${coin1.address}&token1=${coin2.address}&feeTier=${fee}`
+            `${process.env.NEXT_PUBLIC_BASE_URL}/api/pools?token0=${coin1.address}&token1=${coin2.address}&feeTier=${fee}`
           );
           const result = await response.json();
 
@@ -62,7 +62,7 @@ const CreatePool = () => {
   // Smart contract call to create a pool.
   const createPoolOnChain = async () => {
     if (!window.ethereum) {
-      alert("Please install MetaMask!");
+      toast.error("Please install MetaMask!");
       return;
     }
 
@@ -74,7 +74,7 @@ const CreatePool = () => {
 
       const feeInt = parseInt(fee, 10);
       if (isNaN(feeInt)) {
-        alert("Invalid fee tier");
+        toast.error("Invalid fee tier");
         setLoading(false);
         return;
       }
@@ -125,15 +125,15 @@ const CreatePool = () => {
   const initializePool = async (poolAddr: string) => {
     const sqrtPriceX96Str = "79228162514264337593543950336"; // example value
     if (!window.ethereum) {
-      alert("Please install MetaMask!");
+      toast.error("Please install MetaMask!");
       return;
     }
     if (!poolAddr) {
-      alert("Pool address is not set. Create a pool first.");
+      toast.error("Pool address is not set. Create a pool first.");
       return;
     }
     if (!sqrtPriceX96Str) {
-      alert("Please enter a valid sqrtPriceX96 value.");
+      toast.error("Please enter a valid sqrtPriceX96 value.");
       return;
     }
     try {

@@ -8,6 +8,7 @@ import WagmiProviderComp from "@/providers/WagmiProvider";
 import { ThemeProvider } from "@/lib/utils/theme-provider";
 import Navbar from "@/components/common/Navbar";
 import { StepProvider } from "@/context/StepContext";
+import toast, { Toaster } from "react-hot-toast";
 
 export const metadata: Metadata = {
   title: "DEX",
@@ -28,7 +29,7 @@ export default function RootLayout({
           <div className="">
             <StepProvider>
               <Navbar />
-
+              <Toaster />
               {children}
             </StepProvider>
           </div>

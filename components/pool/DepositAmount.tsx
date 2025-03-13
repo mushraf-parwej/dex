@@ -102,7 +102,7 @@ const DepositAmount = () => {
 
   const addLiquidity = async () => {
     if (!provider || !signer || !account) {
-      alert("Wallet not connected");
+      toast.error("Wallet not connected");
       return;
     }
 
@@ -224,10 +224,10 @@ const DepositAmount = () => {
       setTxHash(response.hash);
       const receipt = await response.wait();
       console.log("Mint transaction receipt:", receipt);
-      alert("Liquidity position minted successfully!");
+      toast.error("Liquidity position minted successfully!");
     } catch (error: any) {
       console.error("Error adding liquidity:", error);
-      alert("Error adding liquidity. Check console for details.");
+      toast.error("Error adding liquidity. Check console for details.");
     } finally {
       setLoading(false);
     }

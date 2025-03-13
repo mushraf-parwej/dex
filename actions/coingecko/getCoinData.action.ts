@@ -1,11 +1,11 @@
 "use server";
 
+import { BASE_URL } from "@/constants";
+
 export const getCoinData = async () => {
   try {
-    const res = await fetch(
-      `${process.env.NEXT_PUBLIC_BASE_URL}/api/coingecko/fetchcoins`
-    );
-
+    const res = await fetch(`${BASE_URL}/api/coingecko/fetchcoins`);
+    console.log(res.ok);
     // Check if the response is OK (status code 200-299)
     if (!res.ok) {
       throw new Error(`HTTP error! status: ${res.status}`);
@@ -13,7 +13,7 @@ export const getCoinData = async () => {
 
     // Parse the JSON data
     const data = await res.json();
-    console.log(data);
+
     // Return the parsed data
     return data;
   } catch (error) {
@@ -23,17 +23,13 @@ export const getCoinData = async () => {
 };
 
 export const getCoinPrice = async (coinName: string) => {
-  console.log("coin name is ", coinName);
   try {
     const res = await fetch(
-      `${process.env.NEXT_PUBLIC_BASE_URL}/api/coingecko/currencyconvert?ids=${coinName}`,
-      {
-        cache: "no-store",
-      }
+      `${BASE_URL}/api/coingecko/currencyconvert?ids=${coinName}`
     );
-
+    console.log("result is ", res);
     if (!res.ok) {
-      throw new Error(`Failed to fetch coin price for ${coinName}`);
+      throw new Error(`Failed to fetch  price for ${coinName}`);
     }
 
     const data = await res.json();
