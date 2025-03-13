@@ -45,7 +45,9 @@ const TopPoolTable = () => {
         if (!Array.isArray(apiPools)) {
           throw new Error("Invalid pool data format");
         }
-        const provider = new ethers.BrowserProvider(window.ethereum);
+        // const provider = new ethers.BrowserProvider(window.ethereum);
+        const provider = new ethers.providers.Web3Provider(window.ethereum);
+
         console.log("pointer");
         const tokenSymbolMap = new Map<string, string>();
         const uniqueTokenAddresses = new Set<string>();

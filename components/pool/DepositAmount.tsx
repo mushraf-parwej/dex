@@ -7,7 +7,7 @@ import { Button } from "@/components/ui/button";
 import { useCoinStore } from "@/store";
 import { useStepContext } from "@/context/StepContext";
 import { Edit } from "lucide-react";
-import { ethers, parseUnits } from "ethers";
+import { ethers } from "ethers";
 import { Token, Percent } from "@uniswap/sdk-core";
 import {
   Pool,
@@ -37,14 +37,15 @@ const DepositAmount = () => {
   const [loading, setLoading] = useState(false);
   const [txHash, setTxHash] = useState("");
   const [poolData, setPoolData] = useState<any>(null);
-  const [provider, setProvider] = useState<ethers.BrowserProvider | null>(null);
+  const [provider, setProvider] =
+    useState<ethers.providers.Web3Provider | null>(null);
   const [signer, setSigner] = useState<ethers.Signer | null>(null);
   const [account, setAccount] = useState<string>("");
 
   useEffect(() => {
     async function init() {
       if (window.ethereum) {
-        const _provider = new ethers.BrowserProvider(window.ethereum);
+        const _provider = new ethers.providers.Web3Provider(window.ethereum);
         setProvider(_provider);
         await _provider.send("eth_requestAccounts", []);
         const _signer = await _provider.getSigner();
@@ -108,8 +109,8 @@ const DepositAmount = () => {
 
     setLoading(true);
     try {
-      const _amountCoin1 = parseUnits(amount1 || "0", 6);
-      const _amountCoin2 = parseUnits(amount2 || "0", 6);
+      const _amountCoin1 = ethers.utils.parseUnits(amount1 || "0", 6);
+      const _amountCoin2 = ethers.utils.parseUnits(amount2 || "0", 6);
 
       // Approve tokens for the NonfungiblePositionManager.
       const token0Contract = new ethers.Contract(
@@ -206,15 +207,17 @@ const DepositAmount = () => {
       );
       console.log("Calldata generated:", calldata, "Value:", value);
 
-      let tx: ethers.TransactionRequest = {
+      let tx: ethers.providers.TransactionRequest = {
         to: NONFUNGIBLE_POSITION_MANAGER_ADDRESS,
         data: calldata,
         value: value,
       };
 
       // Estimate gas and add a 20% buffer.
-      const gasEstimate: bigint = await signer.estimateGas(tx);
-      const gasLimit = (gasEstimate * BigInt(120)) / BigInt(100);
+      // const gasEstimate: bigint = await signer.estimateGas(tx);
+      const gasEstimate: ethers.BigNumber = await signer.estimateGas(tx);
+      // const gasLimit = (gasEstimate * BigInt(120)) / BigInt(100);
+      const gasLimit = gasEstimate.mul(120).div(100);
       tx.gasLimit = gasLimit;
       console.log("Transaction object with gas limit:", tx);
 

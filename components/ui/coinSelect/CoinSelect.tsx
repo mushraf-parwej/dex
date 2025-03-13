@@ -366,7 +366,7 @@ const CoinSelect: React.FC<CoinSelectProps> = ({ coinType }) => {
         });
 
         if (typeof window !== "undefined" && window.ethereum) {
-          const provider = new ethers.BrowserProvider(window.ethereum);
+          const provider = new ethers.providers.Web3Provider(window.ethereum);
 
           const tokenPromises = Array.from(uniqueTokenAddresses).map(
             async (tokenAddress) => {

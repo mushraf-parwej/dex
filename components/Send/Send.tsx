@@ -73,7 +73,7 @@ export default function SendComponent() {
 
   const handleSend = async () => {
     // Validate wallet address
-    if (!walletAddress || !ethers.isAddress(walletAddress)) {
+    if (!walletAddress || !ethers.utils.isAddress(walletAddress)) {
       toast.error("Please enter a valid wallet address.");
       return;
     }
@@ -100,9 +100,8 @@ export default function SendComponent() {
 
     try {
       // Set up provider and signer from the wallet
-      const provider = new ethers.BrowserProvider(window.ethereum);
-      const signer = await provider.getSigner();
-
+      const provider = new ethers.providers.Web3Provider(window.ethereum);
+      const signer = provider.getSigner();
       // Define a minimal ERC20 ABI
       const erc20Abi = [
         "function transfer(address to, uint256 amount) public returns (bool)",
@@ -118,7 +117,7 @@ export default function SendComponent() {
 
       // Retrieve token decimals and convert the input amount accordingly
       const decimals = await tokenContract.decimals();
-      const amountInUnits = ethers.parseUnits(amount, decimals);
+      const amountInUnits = ethers.utils.parseUnits(amount, decimals);
 
       // Initiate the token transfer
       const tx = await tokenContract.transfer(walletAddress, amountInUnits);

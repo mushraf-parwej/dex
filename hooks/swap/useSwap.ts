@@ -69,10 +69,10 @@ export const useSwap = () => {
       return;
     }
     try {
-      const provider = new ethers.BrowserProvider(window.ethereum);
+      const provider = new ethers.providers.Web3Provider(window.ethereum);
+      const signer = provider.getSigner();
       await provider.send("eth_requestAccounts", []);
 
-      const signer = await provider.getSigner();
       const swapRouterAddress = "0x217eE4295fcFDedF740080fA12b6ec82c60A973a";
 
       const swapRouter = new ethers.Contract(
@@ -85,7 +85,7 @@ export const useSwap = () => {
       const fee = 3000; // need to change this hardcode value
       const recipient = await signer.getAddress();
       const deadline = Math.floor(Date.now() / 1000) + 60 * 20;
-      const amountIn = ethers.parseUnits(sellAmount, 6);
+      const amountIn = ethers.utils.parseUnits(sellAmount, 6);
       const amountOutMinimum = 0;
       const sqrtPriceLimitX96 = 0;
 

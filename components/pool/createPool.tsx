@@ -68,8 +68,8 @@ const CreatePool = () => {
 
     try {
       setLoading(true);
-      const provider = new ethers.BrowserProvider(window.ethereum);
-      const signer = await provider.getSigner();
+      const provider = new ethers.providers.Web3Provider(window.ethereum);
+      const signer = provider.getSigner();
       const factory = new ethers.Contract(factoryAddress, ABI, signer);
 
       const feeInt = parseInt(fee, 10);
@@ -93,7 +93,7 @@ const CreatePool = () => {
         coin2.address,
         feeInt
       );
-      if (newPoolAddress === ethers.ZeroAddress) {
+      if (newPoolAddress === ethers.constants.AddressZero) {
         console.error("Pool not found in factory.getPool");
         setLoading(false);
         return;
@@ -138,8 +138,8 @@ const CreatePool = () => {
     }
     try {
       // Do not set loading here to avoid conflict with createPoolOnChain loading state.
-      const provider = new ethers.BrowserProvider(window.ethereum);
-      const signer = await provider.getSigner();
+      const provider = new ethers.providers.Web3Provider(window.ethereum);
+      const signer = provider.getSigner();
       const poolContract = new ethers.Contract(poolAddr, POOLABI, signer);
       const sqrtPriceX96 = BigInt(sqrtPriceX96Str);
       console.log("Pool contract:", poolContract);
