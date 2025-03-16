@@ -23,7 +23,7 @@
 //   "0xeD3e638A3B7Fdba6a290cB1bc2572913fe841d71";
 
 // // Map expiry options to durations in seconds
-// const expiryDurations = {
+// const expiryDurations: { [key: string]: number } = {
 //   "1 day": 86400,
 //   "1 week": 604800,
 //   "1 Month": 2592000,
@@ -48,7 +48,7 @@
 //     serializedOrder: null,
 //     signature: null,
 //   });
-//   const [error, setError] = useState(null);
+//   const [error, setError] = useState<string | null>(null);
 
 //   // Swap hook to manage amounts
 //   const {
@@ -59,18 +59,21 @@
 //     handleSwap,
 //   } = useSwap();
 
+//   // Ensure required fields are present
 //   const isFormValid =
 //     sellAmount &&
 //     buyAmount &&
 //     coin1 &&
 //     coin2 &&
+//     coin1.address &&
+//     coin2.address &&
 //     Number(sellAmount) > 0 &&
 //     Number(buyAmount) > 0 &&
 //     address;
 
 //   // STEP 1: Create, sign, and broadcast the order
 //   const handleSubmit = useCallback(
-//     async (e) => {
+//     async (e: React.FormEvent) => {
 //       e.preventDefault();
 //       if (!isFormValid) {
 //         setError("Please ensure all fields are filled correctly.");
@@ -78,6 +81,14 @@
 //         return;
 //       }
 //       setError(null);
+
+//       // Debug logs to ensure all values are defined
+//       console.log("coin1:", coin1);
+//       console.log("coin2:", coin2);
+//       console.log("sellAmount:", sellAmount);
+//       console.log("buyAmount:", buyAmount);
+//       console.log("address:", address);
+
 //       try {
 //         if (!window.ethereum) {
 //           throw new Error("Please install MetaMask!");
@@ -85,7 +96,23 @@
 
 //         const provider = new ethers.providers.Web3Provider(window.ethereum);
 //         const signer = provider.getSigner();
+//         const token0Contract = new ethers.Contract(
+//           coin1.address,
+//           ["function decimals() view returns (uint8)"],
+//           provider
+//         );
+//         const token1Contract = new ethers.Contract(
+//           coin2.address,
+//           ["function decimals() view returns (uint8)"],
+//           provider
+//         );
 
+//         const decimals0 = await token0Contract.decimals();
+//         const decimals1 = await token1Contract.decimals();
+
+//         console.log(
+//           `Decimals: ${coin1.symbol} = ${decimals0}, ${coin2.symbol} = ${decimals1}`
+//         );
 //         // Calculate deadline from expiry selection
 //         const now = Math.floor(Date.now() / 1000);
 //         const expirySeconds = expiryDurations[expiry];
@@ -96,35 +123,43 @@
 //         const nonceMgr = new NonceManager(provider, 1);
 //         const nonce = await nonceMgr.useNonce(address);
 
-//         // Build the order using the DutchOrderBuilder (for a limit order, use static amounts)
+//         // Log the nonce to verify it's defined
+//         console.log("nonce:", nonce);
+//         if (nonce === undefined || nonce === null) {
+//           throw new Error("Nonce is undefined");
+//         }
+
+//         // Build the order using the DutchOrderBuilder
 //         const builder = new DutchOrderBuilder(chainId);
 //         const order = builder
 //           .deadline(deadline)
-//           .decayStartTime(deadline - 100) // setting decay so that startAmount equals endAmount
+//           .decayStartTime(deadline - 100)
 //           .decayEndTime(deadline)
 //           .nonce(nonce)
 //           .input({
 //             token: coin1.address,
-//             amount: ethers.utils.parseUnits(sellAmount, 6),
+//             amount: ethers.utils.parseUnits(sellAmount || "0", decimals0),
 //           })
 //           .output({
 //             token: coin2.address,
-//             startAmount: ethers.utils.parseUnits(buyAmount, 6), // Now a BigNumber
-//             endAmount: ethers.utils.parseUnits(buyAmount, 6),
+//             startAmount: ethers.utils.parseUnits(buyAmount || "0", decimals1),
+//             endAmount: ethers.utils.parseUnits(buyAmount || "0", decimals1),
 //             recipient: address,
 //           })
 //           .swapper(LIMIT_ORDER_REACTOR_ADDRESS)
 //           .build();
+//         order.permit2Address = "0xC348b507B1f826f7A020a0709545566508D40fc4";
 
-//         // Get the EIP-712 data for signing the order (both approves token transfer and order execution)
+//         console.log("Order built:", order);
+
+//         // Get the EIP-712 data for signing the order
 //         const { domain, types, values } = order.permitData();
+//         console.log("Permit data:", { domain, types, values });
 //         const signature = await signer._signTypedData(domain, types, values);
 
 //         // Serialize the order so that it can be broadcast or sent on-chain
 //         const serializedOrder = order.serialize();
 
-//         // OPTIONAL: Here you would broadcast the order off-chain (via an API) so that fillers can pick it up.
-//         // For this demo, we simply store it in state.
 //         console.log("Serialized Order:", serializedOrder);
 //         console.log("Signature:", signature);
 
@@ -135,7 +170,7 @@
 //         setShowConfirmation(true);
 //         setIsSubmitted(true);
 //         setOrderReady(true);
-//       } catch (err) {
+//       } catch (err: any) {
 //         console.error(err);
 //         setError(err.message || "Order submission failed");
 //         toast.error("Order submission failed");
@@ -164,8 +199,6 @@
 //       };
 
 //       // Build dummy callback data.
-//       // The SwapRouter02Executor expects callbackData to decode:
-//       // (address[] tokensToApproveForSwapRouter02, address[] tokensToApproveForReactor, bytes[] multicallData)
 //       const callbackData = ethers.AbiCoder.defaultAbiCoder().encode(
 //         ["address[]", "address[]", "bytes[]"],
 //         [[], [], []]
@@ -178,12 +211,12 @@
 //         signer
 //       );
 
-//       // Call the execute function on the executor. Note: in production, this function is meant to be called by whitelisted fillers.
+//       // Execute the order
 //       const tx = await executor.execute(signedOrder, callbackData);
 //       await tx.wait();
 //       toast.success("Order executed successfully");
 //       console.log("Execution transaction:", tx);
-//     } catch (err) {
+//     } catch (err: any) {
 //       console.error(err);
 //       setError(err.message || "Order execution failed");
 //       toast.error("Order execution failed");
@@ -244,7 +277,6 @@
 //             >
 //               <div className="p-4 text-center">
 //                 <p className="text-lg font-semibold">Limit Order Submitted</p>
-//                 {/* If the order is ready, display an Execute Order button */}
 //                 {orderReady && (
 //                   <button
 //                     onClick={handleExecute}
@@ -361,7 +393,6 @@ import { AnimatePresence, motion } from "framer-motion";
 import { useAccount } from "wagmi";
 import toast from "react-hot-toast";
 import { ethers } from "ethers";
-import { NonceManager, DutchOrderBuilder } from "@uniswap/uniswapx-sdk";
 import { TokenInput } from "../web3/swap/TokenInput";
 import { SwapButton } from "../web3/swap/SwapButton";
 import { useSwap } from "@/hooks/swap/useSwap";
@@ -369,7 +400,6 @@ import { useCoinStore } from "@/store";
 import { Card } from "@/components/ui/card";
 import { Input } from "../ui/input";
 
-import limitOrderReactorAbi from "../../lib/config/limitOrderReactorAbi.json";
 import swapRouter02ExecutorAbi from "../../lib/config/swapRouter02ExecutorAbi.json";
 
 // Deployed contract addresses (update these if needed)
@@ -379,7 +409,7 @@ const SWAP_ROUTER02_EXECUTOR_ADDRESS =
   "0xeD3e638A3B7Fdba6a290cB1bc2572913fe841d71";
 
 // Map expiry options to durations in seconds
-const expiryDurations: { [key: string]: number } = {
+const expiryDurations = {
   "1 day": 86400,
   "1 week": 604800,
   "1 Month": 2592000,
@@ -404,7 +434,7 @@ export default function LimitComponent() {
     serializedOrder: null,
     signature: null,
   });
-  const [error, setError] = useState<string | null>(null);
+  const [error, setError] = useState(null);
 
   // Swap hook to manage amounts
   const {
@@ -427,9 +457,9 @@ export default function LimitComponent() {
     Number(buyAmount) > 0 &&
     address;
 
-  // STEP 1: Create, sign, and broadcast the order
+  // STEP 1: Create, sign, and broadcast the order using direct contract interaction
   const handleSubmit = useCallback(
-    async (e: React.FormEvent) => {
+    async (e) => {
       e.preventDefault();
       if (!isFormValid) {
         setError("Please ensure all fields are filled correctly.");
@@ -438,20 +468,14 @@ export default function LimitComponent() {
       }
       setError(null);
 
-      // Debug logs to ensure all values are defined
-      console.log("coin1:", coin1);
-      console.log("coin2:", coin2);
-      console.log("sellAmount:", sellAmount);
-      console.log("buyAmount:", buyAmount);
-      console.log("address:", address);
-
       try {
         if (!window.ethereum) {
           throw new Error("Please install MetaMask!");
         }
-
         const provider = new ethers.providers.Web3Provider(window.ethereum);
         const signer = provider.getSigner();
+
+        // Fetch token decimals
         const token0Contract = new ethers.Contract(
           coin1.address,
           ["function decimals() view returns (uint8)"],
@@ -462,63 +486,109 @@ export default function LimitComponent() {
           ["function decimals() view returns (uint8)"],
           provider
         );
-
         const decimals0 = await token0Contract.decimals();
         const decimals1 = await token1Contract.decimals();
 
         console.log(
           `Decimals: ${coin1.symbol} = ${decimals0}, ${coin2.symbol} = ${decimals1}`
         );
-        // Calculate deadline from expiry selection
+
+        // Calculate deadline, decay times
         const now = Math.floor(Date.now() / 1000);
         const expirySeconds = expiryDurations[expiry];
         const deadline = now + expirySeconds;
+        const decayStartTime = deadline - 100;
+        const decayEndTime = deadline;
 
-        // Use the NonceManager from the SDK to fetch a nonce
-        const chainId = 11155111; // update to your network's chainId if necessary
-        const nonceMgr = new NonceManager(provider, 1);
-        const nonce = await nonceMgr.useNonce(address);
+        // For demonstration, we'll use 0 (you should replace this with a proper nonce).
+        const nonce = 0;
 
-        // Log the nonce to verify it's defined
-        console.log("nonce:", nonce);
-        if (nonce === undefined || nonce === null) {
-          throw new Error("Nonce is undefined");
-        }
+        // --- MANUALLY CONSTRUCT THE ORDER OBJECT ---
+        // Adjust the fields and order according to your smart contract's struct definition.
+        const order = {
+          nonce: nonce,
+          tokenIn: coin1.address,
+          amountIn: ethers.utils.parseUnits(sellAmount, decimals0).toString(),
+          tokenOut: coin2.address,
+          startAmountOut: ethers.utils
+            .parseUnits(buyAmount, decimals1)
+            .toString(),
+          endAmountOut: ethers.utils
+            .parseUnits(buyAmount, decimals1)
+            .toString(),
+          deadline: deadline,
+          decayStartTime: decayStartTime,
+          decayEndTime: decayEndTime,
+          swapper: LIMIT_ORDER_REACTOR_ADDRESS,
+          permit2Address: "0xC348b507B1f826f7A020a0709545566508D40fc4",
+        };
+        console.log("order", order);
+        // --- DEFINE EIP-712 DOMAIN AND TYPES ---
+        // Make sure these match what your smart contract expects.
+        const chainId = 11155111;
+        const domain = {
+          name: "LimitOrder", //  the name your contract or protocol uses
+          version: "1",
+          chainId,
+          verifyingContract: LIMIT_ORDER_REACTOR_ADDRESS,
+        };
 
-        // Build the order using the DutchOrderBuilder
-        const builder = new DutchOrderBuilder(chainId);
-        const order = builder
-          .deadline(deadline)
-          .decayStartTime(deadline - 100) // setting decay so that startAmount equals endAmount
-          .decayEndTime(deadline)
-          .nonce(nonce)
-          .input({
-            token: coin1.address,
-            amount: ethers.utils.parseUnits(sellAmount || "0", decimals0),
-          })
-          .output({
-            token: coin2.address,
-            startAmount: ethers.utils.parseUnits(buyAmount || "0", decimals1),
-            endAmount: ethers.utils.parseUnits(buyAmount || "0", decimals1),
-            recipient: address,
-          })
-          .swapper(LIMIT_ORDER_REACTOR_ADDRESS)
-          .build();
+        const types = {
+          Order: [
+            { name: "nonce", type: "uint256" },
+            { name: "tokenIn", type: "address" },
+            { name: "amountIn", type: "uint256" },
+            { name: "tokenOut", type: "address" },
+            { name: "startAmountOut", type: "uint256" },
+            { name: "endAmountOut", type: "uint256" },
+            { name: "deadline", type: "uint256" },
+            { name: "decayStartTime", type: "uint256" },
+            { name: "decayEndTime", type: "uint256" },
+            { name: "swapper", type: "address" },
+            { name: "permit2Address", type: "address" },
+          ],
+        };
 
-        // Optional: log the order to inspect its fields
-        console.log("Order built:", order);
-
-        // Get the EIP-712 data for signing the order
-        const { domain, types, values } = order.permitData();
-        console.log("Permit data:", { domain, types, values });
-        const signature = await signer._signTypedData(domain, types, values);
-
-        // Serialize the order so that it can be broadcast or sent on-chain
-        const serializedOrder = order.serialize();
-
-        console.log("Serialized Order:", serializedOrder);
+        // --- SIGN THE ORDER USING EIP-712 ---
+        const signature = await signer._signTypedData(domain, types, order);
         console.log("Signature:", signature);
 
+        // --- SERIALIZE THE ORDER ---
+        // Here we encode the order using ABI encoding. This must match the struct layout your contract uses.
+        const serializedOrder = ethers.utils.defaultAbiCoder.encode(
+          [
+            "uint256", // nonce
+            "address", // tokenIn
+            "uint256", // amountIn
+            "address", // tokenOut
+            "uint256", // startAmountOut
+            "uint256", // endAmountOut
+            "uint256", // deadline
+            "uint256", // decayStartTime
+            "uint256", // decayEndTime
+            "address", // swapper
+            "address", // permit2Address
+          ],
+          [
+            order.nonce,
+            order.tokenIn,
+            order.amountIn,
+            order.tokenOut,
+            order.startAmountOut,
+            order.endAmountOut,
+            order.deadline,
+            order.decayStartTime,
+            order.decayEndTime,
+            order.swapper,
+            order.permit2Address,
+          ]
+        );
+
+        console.log("Serialized Order:", serializedOrder);
+
+        // You can now use the serialized order and signature to broadcast the order on-chain.
+        // For example, if your executor contract has a function like:
+        // function execute(bytes order, bytes signature) external { ... }
         setOrderData({
           serializedOrder,
           signature,
@@ -526,7 +596,7 @@ export default function LimitComponent() {
         setShowConfirmation(true);
         setIsSubmitted(true);
         setOrderReady(true);
-      } catch (err: any) {
+      } catch (err) {
         console.error(err);
         setError(err.message || "Order submission failed");
         toast.error("Order submission failed");
@@ -547,18 +617,11 @@ export default function LimitComponent() {
       const provider = new ethers.providers.Web3Provider(window.ethereum);
       const signer = provider.getSigner();
 
-      // Create a signedOrder object that matches the expected struct:
-      // { order: bytes, sig: bytes }
+      // Create a SignedOrder object that includes both the serialized order and signature.
       const signedOrder = {
         order: orderData.serializedOrder,
         sig: orderData.signature,
       };
-
-      // Build dummy callback data.
-      const callbackData = ethers.AbiCoder.defaultAbiCoder().encode(
-        ["address[]", "address[]", "bytes[]"],
-        [[], [], []]
-      );
 
       // Create an instance of the SwapRouter02Executor contract
       const executor = new ethers.Contract(
@@ -567,12 +630,18 @@ export default function LimitComponent() {
         signer
       );
 
-      // Execute the order
+      // Build dummy callback data (adjust if needed)
+      const callbackData = ethers.utils.defaultAbiCoder.encode(
+        ["address[]", "address[]", "bytes[]"],
+        [[], [], []]
+      );
+
+      // Execute the order by passing the signedOrder and callbackData.
       const tx = await executor.execute(signedOrder, callbackData);
       await tx.wait();
       toast.success("Order executed successfully");
       console.log("Execution transaction:", tx);
-    } catch (err: any) {
+    } catch (err) {
       console.error(err);
       setError(err.message || "Order execution failed");
       toast.error("Order execution failed");
