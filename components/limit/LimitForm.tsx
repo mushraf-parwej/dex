@@ -452,7 +452,23 @@ export default function LimitComponent() {
 
         const provider = new ethers.providers.Web3Provider(window.ethereum);
         const signer = provider.getSigner();
+        const token0Contract = new ethers.Contract(
+          coin1.address,
+          ["function decimals() view returns (uint8)"],
+          provider
+        );
+        const token1Contract = new ethers.Contract(
+          coin2.address,
+          ["function decimals() view returns (uint8)"],
+          provider
+        );
 
+        const decimals0 = await token0Contract.decimals();
+        const decimals1 = await token1Contract.decimals();
+
+        console.log(
+          `Decimals: ${coin1.symbol} = ${decimals0}, ${coin2.symbol} = ${decimals1}`
+        );
         // Calculate deadline from expiry selection
         const now = Math.floor(Date.now() / 1000);
         const expirySeconds = expiryDurations[expiry];
@@ -478,12 +494,12 @@ export default function LimitComponent() {
           .nonce(nonce)
           .input({
             token: coin1.address,
-            amount: ethers.utils.parseUnits(sellAmount || "0", 6),
+            amount: ethers.utils.parseUnits(sellAmount || "0", decimals0),
           })
           .output({
             token: coin2.address,
-            startAmount: ethers.utils.parseUnits(buyAmount || "0", 6),
-            endAmount: ethers.utils.parseUnits(buyAmount || "0", 6),
+            startAmount: ethers.utils.parseUnits(buyAmount || "0", decimals1),
+            endAmount: ethers.utils.parseUnits(buyAmount || "0", decimals1),
             recipient: address,
           })
           .swapper(LIMIT_ORDER_REACTOR_ADDRESS)

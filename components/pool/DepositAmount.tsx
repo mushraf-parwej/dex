@@ -109,9 +109,6 @@ const DepositAmount = () => {
 
     setLoading(true);
     try {
-      const _amountCoin1 = ethers.utils.parseUnits(amount1 || "0", 6);
-      const _amountCoin2 = ethers.utils.parseUnits(amount2 || "0", 6);
-
       // Approve tokens for the NonfungiblePositionManager.
       const token0Contract = new ethers.Contract(
         coin1.address,
@@ -123,7 +120,11 @@ const DepositAmount = () => {
         ERC20ABI,
         signer
       );
+      const decimals0 = await token0Contract.decimals();
+      const decimals1 = await token1Contract.decimals();
 
+      const _amountCoin1 = ethers.utils.parseUnits(amount1 || "0", decimals0);
+      const _amountCoin2 = ethers.utils.parseUnits(amount2 || "0", decimals1);
       console.log("Approving token transfers...");
       const tx0 = await token0Contract.approve(
         NONFUNGIBLE_POSITION_MANAGER_ADDRESS,

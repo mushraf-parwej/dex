@@ -80,12 +80,18 @@ export const useSwap = () => {
         swapRouterABI,
         signer
       );
+      const tokenContract = new ethers.Contract(
+        coin1.address,
+        ERC20ABI,
+        signer
+      );
       const tokenIn = coin1.address;
       const tokenOut = coin2.address;
       const fee = 3000; // need to change this hardcode value
       const recipient = await signer.getAddress();
       const deadline = Math.floor(Date.now() / 1000) + 60 * 20;
-      const amountIn = ethers.utils.parseUnits(sellAmount, 6);
+      const decimals = await tokenContract.decimals();
+      const amountIn = ethers.utils.parseUnits(sellAmount, decimals);
       const amountOutMinimum = 0;
       const sqrtPriceLimitX96 = 0;
 
@@ -102,11 +108,7 @@ export const useSwap = () => {
 
       console.log("Executing swap with params:", params);
       console.log("Approving token transfer...");
-      const tokenContract = new ethers.Contract(
-        coin1.address,
-        ERC20ABI,
-        signer
-      );
+
       const approveTx = await tokenContract.approve(
         swapRouterAddress,
         amountIn
