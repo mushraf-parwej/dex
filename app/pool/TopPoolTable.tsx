@@ -3,6 +3,7 @@
 import React, { useEffect, useState } from "react";
 import { ethers } from "ethers";
 import { poolData } from "@/constants/tvlData";
+import toast from "react-hot-toast";
 
 // Define interfaces for API response
 interface ApiPool {
@@ -44,7 +45,10 @@ const TopPoolTable = () => {
         if (!Array.isArray(apiPools)) {
           throw new Error("Invalid pool data format");
         }
-        const provider = new ethers.BrowserProvider(window.ethereum);
+        // const provider = new ethers.BrowserProvider(window.ethereum);
+        const provider = new ethers.providers.Web3Provider(window.ethereum);
+
+        console.log("pointer");
         const tokenSymbolMap = new Map<string, string>();
         const uniqueTokenAddresses = new Set<string>();
         apiPools.forEach((pool) => {
@@ -70,7 +74,6 @@ const TopPoolTable = () => {
         );
 
         const combinedPools = poolData.map((staticData, index) => {
-         
           if (index >= apiPools.length) {
             return {
               ...staticData,
@@ -96,6 +99,7 @@ const TopPoolTable = () => {
       } catch (err) {
         console.error("Failed to fetch pools data:", err);
         setError("Failed to load pool data");
+        toast.error("Failed to load pool data");
       } finally {
         setIsLoading(false);
       }

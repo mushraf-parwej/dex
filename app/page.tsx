@@ -7,6 +7,10 @@ import Pool from "./pool/page";
 import TabIcon from "@/components/web3/swap/SettingsButton";
 import LimitComponent from "@/components/limit/LimitForm";
 
+import BuyForm from "@/components/Buy/BuyForm";
+
+import SendComponent from "@/components/Send/Send";
+
 interface HomeProps {
   searchParams: { tab?: string };
 }
@@ -37,6 +41,13 @@ export default function Home({ searchParams }: HomeProps) {
         </TabsContent>
         <TabsContent value="limit">
           <LimitComponent />
+        </TabsContent>
+
+        <TabsContent value="buy">
+          <BuyForm />
+        </TabsContent>
+        <TabsContent value="send">
+          <SendComponent />
         </TabsContent>
       </Tabs>
     </div>

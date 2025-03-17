@@ -10,28 +10,32 @@ interface SwapProgressProps {
     description: string;
   }[];
   onback: () => void;
+  currentStep: number;
+  isCompleted: boolean;
 }
 
-export const SwapProgress = ({ steps, onback }: SwapProgressProps) => {
-  const [currentStep, setCurrentStep] = useState(0);
-  const [isCompleted, setIsCompleted] = useState(false);
+export const SwapProgress = ({
+  steps,
+  onback,
+  currentStep,
+  isCompleted,
+}: SwapProgressProps) => {
+  // useEffect(() => {
+  //   const timeouts: NodeJS.Timeout[] = [];
 
-  useEffect(() => {
-    const timeouts: NodeJS.Timeout[] = [];
+  //   steps.forEach((_, index) => {
+  //     const timeout = setTimeout(() => {
+  //       setCurrentStep(index);
+  //       if (index === steps.length - 1) {
+  //         setIsCompleted(true);
+  //       }
+  //     }, index * 2000); // 2 seconds between each step
 
-    steps.forEach((_, index) => {
-      const timeout = setTimeout(() => {
-        setCurrentStep(index);
-        if (index === steps.length - 1) {
-          setIsCompleted(true);
-        }
-      }, index * 2000); // 2 seconds between each step
+  //     timeouts.push(timeout);
+  //   });
 
-      timeouts.push(timeout);
-    });
-
-    return () => timeouts.forEach(clearTimeout);
-  }, [steps.length]);
+  //   return () => timeouts.forEach(clearTimeout);
+  // }, [steps.length]);
 
   return (
     <motion.div

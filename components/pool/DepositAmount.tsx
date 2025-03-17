@@ -1,119 +1,3 @@
-// "use client";
-
-// import React, { useState } from "react";
-// import { Card } from "@/components/ui/card";
-// import { Input } from "../ui/input";
-// import { Button } from "@/components/ui/button"; // Adjust the import path for your Edit icon
-// import { useCoinStore } from "@/store";
-// import { useStepContext } from "@/context/StepContext";
-// import { Edit } from "lucide-react";
-// const DepositAmount = () => {
-//   const { coin1, coin2 } = useCoinStore();
-//   const { setCurrentStep } = useStepContext();
-//   const [amount1, setAmount1] = useState("");
-//   const [amount2, setAmount2] = useState("");
-
-//   const handleMaxCoin1 = async () => {
-//     // Simulate fetching max balance for coin1, replace with actual logic
-//     const simulatedMax = "100.00";
-//     setAmount1(simulatedMax);
-//   };
-
-//   const handleMaxCoin2 = async () => {
-//     // Simulate fetching max balance for coin2, replace with actual logic
-//     const simulatedMax = "200.00";
-//     setAmount2(simulatedMax);
-//   };
-
-//   const handleSubmit = () => {
-//     const depositData = {
-//       coin1,
-//       coin2,
-//       amount1,
-//       amount2,
-//     };
-//     console.log("Deposit Data:", depositData);
-//   };
-
-//   return (
-//     <main className="p-6">
-//       {/* Header with coin names and an Edit button */}
-//       <section className="flex flex-row items-center justify-between w-full border">
-//         <div className="flex flex-row items-center space-x-2">
-//           <span>{coin1.name}</span>
-//           <span>/</span>
-//           <span>{coin2.name}</span>
-//         </div>
-//         <Edit className="cursor-pointer" onClick={() => setCurrentStep(1)} />
-//       </section>
-
-//       {/* Graph section with Edit for "Full Range" */}
-//       <section className="p-5 rounded-[13px] w-full border flex flex-row space-x-5 justify-between mt-4">
-//         <div>Graph</div>
-//         <div className="flex flex-row items-center space-x-2">
-//           <span>Full Range</span>
-//           <Edit className="cursor-pointer" onClick={() => setCurrentStep(2)} />
-//         </div>
-//       </section>
-
-//       {/* Deposit Form */}
-//       <section className="rounded-[15px] p-5 w-full border flex flex-col space-y-20 mt-4">
-//         <div className="w-full flex flex-col justify-start">
-//           <p className="text-lg font-semibold">Deposit Amount</p>
-//           <span className="text-sm">
-//             Specify the token amounts for your liquidity contribution.
-//           </span>
-//         </div>
-//         <div className="flex flex-col space-y-2">
-//           {/* Coin1 Deposit Card */}
-//           <Card className="p-4 w-full flex flex-col gap-4 rounded-xl bg-[#E0E0E04D]">
-//             <div className="flex flex-row items-center justify-between gap-6">
-//               <Input
-//                 className="outline-none text-[20px] w-full border-none py-4 rounded-lg placeholder:text-black disabled:opacity-50 disabled:cursor-not-allowed"
-//                 type="number"
-//                 placeholder="0.00"
-//                 value={amount1}
-//                 onChange={(e) => setAmount1(e.target.value)}
-//               />
-//               <span>{coin1.name}</span>
-//             </div>
-//             <div className="flex flex-row justify-between w-full items-center">
-//               <span>$0</span>
-//               <button onClick={handleMaxCoin1} className="text-xs underline">
-//                 Max Button
-//               </button>
-//             </div>
-//           </Card>
-//           {/* Coin2 Deposit Card */}
-//           <Card className="p-4 w-full flex flex-col gap-4 rounded-xl bg-[#E0E0E04D]">
-//             <div className="flex flex-row items-center justify-between gap-6">
-//               <Input
-//                 className="outline-none text-[20px] w-full border-none py-4 rounded-lg placeholder:text-black disabled:opacity-50 disabled:cursor-not-allowed"
-//                 type="number"
-//                 placeholder="0.00"
-//                 value={amount2}
-//                 onChange={(e) => setAmount2(e.target.value)}
-//               />
-//               <span>{coin2.name}</span>
-//             </div>
-//             <div className="flex flex-row justify-between w-full items-center">
-//               <span>$0</span>
-//               <button onClick={handleMaxCoin2} className="text-xs underline">
-//                 Max Button
-//               </button>
-//             </div>
-//           </Card>
-//           {/* Submit Button */}
-//           <Button onClick={handleSubmit} className="red-btn">
-//             Submit
-//           </Button>
-//         </div>
-//       </section>
-//     </main>
-//   );
-// };
-
-// export default DepositAmount;
 "use client";
 
 import React, { useState, useEffect } from "react";
@@ -123,7 +7,7 @@ import { Button } from "@/components/ui/button";
 import { useCoinStore } from "@/store";
 import { useStepContext } from "@/context/StepContext";
 import { Edit } from "lucide-react";
-import { ethers, parseUnits } from "ethers";
+import { ethers } from "ethers";
 import { Token, Percent } from "@uniswap/sdk-core";
 import {
   Pool,
@@ -142,11 +26,10 @@ const ERC20ABI = [
 ];
 
 const NONFUNGIBLE_POSITION_MANAGER_ADDRESS =
-  "0xa2bcBce9B2727CAd75ec42bFf76a6d85DA129B9C";
+  "0x5610EDc4FFf83CD27005C8fac3cFAc41396A759B"; //0x84C9bfD0c3B31d770eD386A332Dd9dFE26464bCD
 const chainId = 11155111;
 
 const DepositAmount = () => {
-  // Now assume fee is stored in the coin store along with coin1 and coin2.
   const { coin1, coin2, fee } = useCoinStore();
   const { setCurrentStep } = useStepContext();
   const [amount1, setAmount1] = useState("");
@@ -154,15 +37,15 @@ const DepositAmount = () => {
   const [loading, setLoading] = useState(false);
   const [txHash, setTxHash] = useState("");
   const [poolData, setPoolData] = useState<any>(null);
-
-  const [provider, setProvider] = useState<ethers.BrowserProvider | null>(null);
+  const [provider, setProvider] =
+    useState<ethers.providers.Web3Provider | null>(null);
   const [signer, setSigner] = useState<ethers.Signer | null>(null);
   const [account, setAccount] = useState<string>("");
 
   useEffect(() => {
     async function init() {
       if (window.ethereum) {
-        const _provider = new ethers.BrowserProvider(window.ethereum);
+        const _provider = new ethers.providers.Web3Provider(window.ethereum);
         setProvider(_provider);
         await _provider.send("eth_requestAccounts", []);
         const _signer = await _provider.getSigner();
@@ -187,11 +70,6 @@ const DepositAmount = () => {
   const fetchPoolData = async (): Promise<any> => {
     if (!provider) return null;
     try {
-      // const poolContract = new ethers.Contract(
-      //   "0x391246c0873ff6a14aba382bb6bc7ec3fe9bd083",
-      //   POOLABI,
-      //   provider
-      // );
       const storedPoolAddress = localStorage.getItem("poolAddress");
       if (!storedPoolAddress) {
         throw new Error("Pool address not found in local storage");
@@ -225,15 +103,12 @@ const DepositAmount = () => {
 
   const addLiquidity = async () => {
     if (!provider || !signer || !account) {
-      alert("Wallet not connected");
+      toast.error("Wallet not connected");
       return;
     }
 
     setLoading(true);
     try {
-      const _amountCoin1 = parseUnits(amount1 || "0", 6);
-      const _amountCoin2 = parseUnits(amount2 || "0", 6);
-
       // Approve tokens for the NonfungiblePositionManager.
       const token0Contract = new ethers.Contract(
         coin1.address,
@@ -245,7 +120,11 @@ const DepositAmount = () => {
         ERC20ABI,
         signer
       );
+      const decimals0 = await token0Contract.decimals();
+      const decimals1 = await token1Contract.decimals();
 
+      const _amountCoin1 = ethers.utils.parseUnits(amount1 || "0", decimals0);
+      const _amountCoin2 = ethers.utils.parseUnits(amount2 || "0", decimals1);
       console.log("Approving token transfers...");
       const tx0 = await token0Contract.approve(
         NONFUNGIBLE_POSITION_MANAGER_ADDRESS,
@@ -272,12 +151,15 @@ const DepositAmount = () => {
       // Convert tick from BigInt to number if necessary.
       const currentTick =
         typeof data.tick === "bigint" ? Number(data.tick) : data.tick;
-
+      const feeTierFromStorage = localStorage.getItem("feeTier");
+      const feeTier = feeTierFromStorage
+        ? parseInt(feeTierFromStorage, 10)
+        : FeeAmount.MEDIUM;
       // Create a Pool instance using the fee returned on-chain.
       const poolInstance = new Pool(
         TokenA,
         TokenB,
-        FeeAmount.MEDIUM, // Alternatively, you can use data.fee if you prefer.
+        feeTier,
         data.sqrtPriceX96,
         data.liquidity,
         currentTick
@@ -326,15 +208,17 @@ const DepositAmount = () => {
       );
       console.log("Calldata generated:", calldata, "Value:", value);
 
-      let tx: ethers.TransactionRequest = {
+      let tx: ethers.providers.TransactionRequest = {
         to: NONFUNGIBLE_POSITION_MANAGER_ADDRESS,
         data: calldata,
         value: value,
       };
 
       // Estimate gas and add a 20% buffer.
-      const gasEstimate: bigint = await signer.estimateGas(tx);
-      const gasLimit = (gasEstimate * BigInt(120)) / BigInt(100);
+      // const gasEstimate: bigint = await signer.estimateGas(tx);
+      const gasEstimate: ethers.BigNumber = await signer.estimateGas(tx);
+      // const gasLimit = (gasEstimate * BigInt(120)) / BigInt(100);
+      const gasLimit = gasEstimate.mul(120).div(100);
       tx.gasLimit = gasLimit;
       console.log("Transaction object with gas limit:", tx);
 
@@ -344,10 +228,10 @@ const DepositAmount = () => {
       setTxHash(response.hash);
       const receipt = await response.wait();
       console.log("Mint transaction receipt:", receipt);
-      alert("Liquidity position minted successfully!");
+      toast.error("Liquidity position minted successfully!");
     } catch (error: any) {
       console.error("Error adding liquidity:", error);
-      alert("Error adding liquidity. Check console for details.");
+      toast.error("Error adding liquidity. Check console for details.");
     } finally {
       setLoading(false);
     }
